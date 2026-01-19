@@ -6,6 +6,9 @@
 \usepackage{shortcuts}
 \usepackage{acronym}
 \usepackage{url}
+\usepackage{csquotes}
+\usepackage[backend=biber, style=numeric, sorting=none, url=true, doi=true]{biblatex}
+\addbibresource{bibliography.bib}
 \makeatletter
 
 \AtBeginDocument{
@@ -124,8 +127,7 @@ integrando dati ambientali in tempo reale provenienti da sensori IoT.\end{abstra
 
 \nocite{*} % Remove this as soon as you have the first citation
 
-\bibliographystyle{alpha}
-\bibliography{bibliography}
+\printbibliography[heading=bibintoc]
 
 \begin{acknowledgements} % this is optional
 Optional. Max 1 page.
