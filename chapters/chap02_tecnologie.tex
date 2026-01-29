@@ -37,7 +37,7 @@ Gestisce il login tramite Email/Password, Google Sign-In e accesso anonimo, ridu
 L'applicazione comunica con un endpoint AWS (Amazon Web Services) \cite{aws} per recuperare i dati dalle centraline idrometeorologiche. Le stazioni monitorano parametri quali livello idrometrico, temperatura e conducibilità.
 
 \subsection{Open-Meteo API}
-Per fornire contesto meteorologico ai POI, viene utilizzata l'API open-source Open-Meteo \cite{openmeteo}, che fornisce dati su temperatura e condizioni del cielo basati sulle coordinate GPS.
+Per fornire contesto meteorologico ai POI, viene utilizzata l'API open-source Open-Meteo \cite{open_meteo_api}, che fornisce dati su temperatura e condizioni del cielo basati sulle coordinate GPS.
 
 \section{Geolocalizzazione e Mappe}
 La libreria \texttt{flutter\_map} \cite{fluttermap}, basata su OpenStreetMap \cite{openstreetmap}, gestisce il rendering cartografico. Il pacchetto \texttt{geolocator} permette il calcolo delle distanze per la logica di "scoperta" (geofencing) quando l'utente si avvicina a un animale o a una pianta.
