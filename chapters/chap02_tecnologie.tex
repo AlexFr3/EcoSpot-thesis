@@ -1,16 +1,16 @@
 %!TEX root = ../thesis-main.tex
-\chapter{Tecnologie e Strumenti}
+\chapter{Tecnologie e Progettazione}
 \label{chap:technologies}
 
 Per lo sviluppo del sistema EcoTwin è stato selezionato uno stack tecnologico moderno orientato al mobile cross-platform e al cloud computing.
 
-\section{Sviluppo Mobile: Flutter e Dart}
+\section{Flutter e Dart}
 Flutter \cite{flutter} è il framework UI di Google per creare applicazioni compilate nativamente, basato sul linguaggio di programmazione Dart \cite{dart}.
 
-\subsection{Architettura a Widget}
+\subsection{Widget}
 In Flutter, tutto è un widget. L'interfaccia utente è costruita come un albero di widget immutabili. Questo approccio è stato utilizzato per creare componenti riutilizzabili come le \texttt{SpeciesDetailSheet} per i dettagli della fauna.
 
-\subsection{Gestione dello Stato con Riverpod}
+\subsection{Riverpod}
 Per gestire lo stato dell'applicazione e le dipendenze, è stato scelto \textbf{Riverpod} \cite{riverpod}. A differenza del classico Provider, Riverpod offre sicurezza a compile-time e una migliore testabilità. Nel progetto, i provider gestiscono:
 \begin{itemize}
     \item L'autenticazione utente (\texttt{authServiceProvider}).

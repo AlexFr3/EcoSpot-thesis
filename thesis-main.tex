@@ -1,6 +1,5 @@
 \documentclass[12pt,a4paper,openany,twoside]{report}
 
-% --- PACCHETTI (Template Prof + I tuoi) ---
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
 \usepackage{fancyhdr}
@@ -24,8 +23,8 @@
 \usepackage{subcaption}
 \usepackage{float}
 \usepackage{csquotes}
+\usepackage{todonotes}
 
-% --- CONFIGURAZIONE ---
 \bibliographystyle{unsrtnat} % Stile bibliografia
 \lstset{frame=single,breaklines=true}
 \setcounter{secnumdepth}{4}
@@ -77,9 +76,9 @@
 \clearpage{\pagestyle{empty}}
 \pagenumbering{arabic}
 
-% 3. Capitoli (Assicurati che questi file esistano nella cartella chapters)
+% Capitoli
 \input{chapters/chap01_contesto.tex}
-% \input{chapters/chap02_tecnologie.tex} % Scommenta quando li crei
+\input{chapters/chap02_tecnologie.tex} 
 % \input{chapters/chap03_implementazione.tex}
 
 % 4. Conclusioni
@@ -88,7 +87,7 @@
 % 5. Bibliografia
 \cleardoublepage
 \addcontentsline{toc}{chapter}{Bibliografia}
-\nocite{*} % <--- IMPORTANTE: Risolve l'errore se non hai ancora citazioni
+\nocite{*}
 \bibliography{bibliography} % Legge il file bibliography.bib
 
 % 6. Ringraziamenti
