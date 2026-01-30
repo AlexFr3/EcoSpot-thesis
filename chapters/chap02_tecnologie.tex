@@ -2,42 +2,64 @@
 \chapter{Tecnologie e Progettazione}
 \label{chap:technologies}
 
-Per lo sviluppo del sistema EcoTwin è stato selezionato uno stack tecnologico moderno orientato al mobile cross-platform e al cloud computing.
+Questo capitolo presenta l'analisi degli obiettivi e la progettazione del sistema EcoSpot, descrivendo l'architettura logica e le scelte tecnologiche adottate per lo sviluppo dell'applicazione mobile e la sua integrazione con i servizi cloud e IoT.
 
-\section{Flutter e Dart}
-Flutter \cite{flutter} è il framework UI di Google per creare applicazioni compilate nativamente, basato sul linguaggio di programmazione Dart \cite{dart}.
+\section{Obiettivi del progetto}
+\label{sec:project_goals}
 
-\subsection{Widget}
-In Flutter, tutto è un widget. L'interfaccia utente è costruita come un albero di widget immutabili. Questo approccio è stato utilizzato per creare componenti riutilizzabili come le \texttt{SpeciesDetailSheet} per i dettagli della fauna.
+La progettazione di EcoSpot è guidata da quattro obiettivi strategici, volti a coniugare l'esperienza turistica con la consapevolezza ecologica e le moderne tecnologie mobili.
 
-\subsection{Riverpod}
-Per gestire lo stato dell'applicazione e le dipendenze, è stato scelto \textbf{Riverpod} \cite{riverpod}. A differenza del classico Provider, Riverpod offre sicurezza a compile-time e una migliore testabilità. Nel progetto, i provider gestiscono:
 \begin{itemize}
-    \item L'autenticazione utente (\texttt{authServiceProvider}).
-    \item I dati in streaming dai sensori (\texttt{sensorsProvider}).
-    \item La posizione dell'utente in tempo reale (\texttt{userPositionProvider}).
+    \item \textbf{Divulgazione e Citizen Science:} l'obiettivo è diffondere la conoscenza della biodiversità locale attraverso una \textit{collezione digitale} strutturata e partecipativa. L'applicazione non si limita a offrire un catalogo dettagliato di specie (suddivise in categorie come uccelli, mammiferi, pesci e aree verdi), ma abilita pratiche di \textit{Citizen Science}: gli utenti possono contribuire attivamente al monitoraggio del territorio inviando segnalazioni georeferenziate e fotografiche, trasformando la semplice osservazione in un percorso di tutela condivisa.
+
+    \item \textbf{Incentivazione del turismo lento:} il sistema mira a favorire un'esplorazione rispettosa del territorio sfruttando meccaniche \textit{location-based}. Grazie alla geolocalizzazione e al \textit{geofencing}, l'utente è incentivato a raggiungere fisicamente luoghi reali (valli, argini, punti di osservazione) per sbloccare i contenuti e validare le scoperte, promuovendo così una mobilità dolce e un presidio attivo degli habitat, in contrapposizione al turismo di massa.
+
+    \item \textbf{Monitoraggio ambientale integrato:} il progetto intende rendere accessibili parametri ecologici complessi tramite l'aggregazione di dati IoT in tempo reale. L'app si interfaccia con le API di enti territoriali (es. progetto DISCOV.ER) per i dati idrografici (livello, temperatura, conducibilità) e integra servizi meteorologici come Open-Meteo \cite{open_meteo_api}, rendendo visibili all'utente fattori invisibili ma vitali per l'ecosistema lagunare.
+
+    \item \textbf{Incremento del coinvolgimento (Gamification):} l'ultimo obiettivo è massimizzare la ritenzione e la partecipazione dell'utente attraverso 
+    la \textit{gamification}. L'uso di elementi ludici come punti esperienza (XP) e livelli dinamici (da ``Esploratore'' a ``Leggenda del Delta'') 
+    serve a rafforzare il senso di appartenenza al territorio e a stimolare comportamenti virtuosi, premiando l'interazione fisica con il Parco.
 \end{itemize}
 
-\section{Backend e Cloud: Firebase}
-Firebase \cite{firebase} agisce come Backend-as-a-Service (\ac{BaaS}), fornendo un'infrastruttura scalabile senza la necessità di gestire server dedicati.
+L’integrazione di questi quattro pilastri mira ad aumentare l'attenzione dei visitatori, offrendo un’esperienza che combina contenuti informativi, esplorazione fisica e feedback immediati sulle pratiche sostenibili. Al tempo stesso, la possibilità di accedere a dati ambientali in tempo quasi reale e di collegarli alle osservazioni sul campo contribuisce a sviluppare una maggiore consapevolezza ecologica, mostrando in modo concreto la fragilità e il valore degli ecosistemi lagunari. In questo senso, EcoSpot si configura non solo come strumento di guida turistica, ma come piattaforma di educazione ambientale e di supporto alla gestione sostenibile delle aree protette del Delta del Po.
+\section{Tecnologie}
+\subsection{Flutter e Dart}
+Per soddisfare il requisito di compatibilità multipiattaforma, è stato selezionato il framework \textbf{Flutter} \cite{flutter}. Questa scelta permette di 
+gestire un'unica base di codice per Android e iOS, garantendo al contempo prestazioni native grazie al motore di rendering Skia \cite{flutter_performance}.
 
-\subsection{Cloud Firestore}
-Database NoSQL utilizzato per memorizzare:
+L'adozione di Flutter offre vantaggi misurabili che ne giustificano l'impiego in progetti moderni. Secondo recenti indagini di settore, Flutter si conferma il framework cross-platform più utilizzato a livello globale, scelto dal \textbf{46\%} degli sviluppatori software \cite{statista_flutter_2023}.
+La sua architettura consente un riutilizzo del codice (code reuse) che può superare il \textbf{90\%} tra le diverse piattaforme \cite{flutter_multiplatform}, riducendo i tempi di sviluppo fino al \textbf{50\%} rispetto agli approcci nativi tradizionali \cite{flutter_efficiency} senza compromettere la fluidità, che rimane stabile a \textbf{60 FPS} \cite{flutter_performance}.
+
+L'interfaccia utente è costruita seguendo un paradigma dichiarativo basato sui \textbf{Widget}, unità discrete e riutilizzabili che compongono l'interfaccia 
+gerarchicamente. Questo approccio ha permesso di sviluppare componenti modulari come le schede di dettaglio delle specie (\texttt{SpeciesDetailSheet}) e il 
+widget della mappa (\texttt{MapWidget}), facilitando la manutenzione del software.
+
+\subsection{Backend e Dati: Firebase}
+L'infrastruttura di backend si appoggia alla suite \textbf{Firebase} \cite{firebase}, che opera come Backend-as-a-Service (BaaS), eliminando la necessità di gestire server dedicati.
 \begin{itemize}
-    \item Profili utente e progressi (XP, livello).
-    \item Lista delle specie scoperte (\texttt{visitedSpeciesIds}).
+    \item \textbf{Authentication}: gestisce l'accesso sicuro degli utenti, supportando l'autenticazione anonima per permettere un uso immediato dell'app senza barriere iniziali.
+    \item \textbf{Cloud Firestore}: database NoSQL utilizzato per la sincronizzazione in tempo reale dei profili utente, dei punti esperienza accumulati e della lista delle specie scoperte.
 \end{itemize}
 
-\subsection{Authentication}
-Gestisce il login tramite Email/Password, Google Sign-In e accesso anonimo, riducendo le barriere all'ingresso per i turisti occasionali.
+\section{Gestione dello Stato: Riverpod}
+Per gestire la complessità dei flussi di dati (GPS, sensori, profilo utente) è stata adottata la libreria \textbf{Riverpod} \cite{riverpod}. A differenza dei pattern tradizionali, Riverpod permette di definire lo stato in modo globale e reattivo, garantendo che la UI si aggiorni automaticamente al variare dei dati.
 
-\section{Integrazione IoT e Servizi Esterni}
+I principali flussi di dati gestiti dai provider includono:
+\begin{itemize}
+    \item \textbf{\texttt{authServiceProvider}}: centralizza la logica di autenticazione e la sessione utente.
+    \item \textbf{\texttt{userPositionProvider}}: gestisce lo stream della posizione GPS aggiornata in tempo reale, essenziale per il calcolo delle distanze dai punti di interesse.
+    \item \textbf{\texttt{speciesProvider}}: incrocia i dati del database con il profilo dell'utente per determinare quali specie siano già state scoperte.
+    \item \textbf{\texttt{sensorsProvider}}: recupera asincronamente i dati telemetrici dalle stazioni ambientali tramite chiamate API sicure.
+\end{itemize}
 
-\subsection{Acquisizione Dati Sensori}
-L'applicazione comunica con un endpoint AWS (Amazon Web Services) \cite{aws} per recuperare i dati dalle centraline idrometeorologiche. Le stazioni monitorano parametri quali livello idrometrico, temperatura e conducibilità.
+\section{Integrazione API}
+Il sistema funge da collettore di informazioni provenienti da fonti eterogenee per arricchire l'esperienza utente.
 
-\subsection{Open-Meteo API}
-Per fornire contesto meteorologico ai POI, viene utilizzata l'API open-source Open-Meteo \cite{open_meteo_api}, che fornisce dati su temperatura e condizioni del cielo basati sulle coordinate GPS.
+\subsection{Monitoraggio Ambientale}
+Il servizio \texttt{SensorService} si occupa della comunicazione con gli endpoint delle centraline idrometeorologiche. Attraverso richieste HTTP POST, il sistema recupera parametri quali livello idrometrico e temperatura, normalizzandoli per la visualizzazione all'interno dell'applicazione.
 
-\section{Geolocalizzazione e Mappe}
-La libreria \texttt{flutter\_map} \cite{fluttermap}, basata su OpenStreetMap \cite{openstreetmap}, gestisce il rendering cartografico. Il pacchetto \texttt{geolocator} permette il calcolo delle distanze per la logica di "scoperta" (geofencing) quando l'utente si avvicina a un animale o a una pianta.
+\subsection{Geolocalizzazione e Cartografia}
+La cartografia è gestita tramite \texttt{flutter\_map} \cite{fluttermap} su base OpenStreetMap \cite{openstreetmap}. Per ottimizzare le prestazioni in presenza di numerosi punti di interesse, è stato implementato un sistema di \textbf{clustering} che raggruppa i marker vicini a bassi livelli di zoom. Il calcolo delle distanze per la logica di scoperta è affidato al pacchetto \texttt{geolocator} \cite{geolocator}, che permette di validare la presenza dell'utente presso un sito naturalistico.
+
+\subsection{Dati Meteorologici}
+Per fornire contesto ambientale, il sistema integra le API di \textbf{Open-Meteo} \cite{open_meteo_api}. Il servizio recupera le condizioni del cielo e la temperatura basandosi sulla posizione attuale dell'utente o sulle coordinate specifiche dei punti di interesse.

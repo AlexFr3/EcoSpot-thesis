@@ -12,6 +12,7 @@ Il progetto è stato strutturato seguendo una divisione in layer logici per gara
     \item \textbf{Presentation Layer}: Comprende i widget dell'interfaccia utente (\texttt{pages} e \texttt{widgets}), separando la logica di visualizzazione dallo stato dell'applicazione.
 \end{itemize}
 
+% --- AGGIUNTA LA SEZIONE MANCANTE ---
 \section{Sviluppo dell'Applicazione Mobile}
 Lo sviluppo si è concentrato sulla creazione di un'esperienza utente fluida, sfruttando le capacità multi-piattaforma di Flutter.
 
@@ -46,7 +47,7 @@ Il seguente codice mostra come vengono renderizzati i marker per le aree verdi u
 \label{lst:map_markers}
 \end{listing}
 
-\subsection{Sistema di Gamification}
+\subsection{Gestione Gamification}
 Il cuore dell'esperienza utente è il sistema di scoperta ("Discovery"), progettato per incentivare l'esplorazione fisica del Parco. L'app calcola costantemente la distanza geodetica tra la posizione dell'utente e quella delle specie target.
 
 \subsubsection{Logica di Scoperta}
@@ -69,11 +70,14 @@ void _checkDiscoveries(LatLng userLocation) {
   \label{lst:discovery}
 \end{listing}
 
-\subsubsection{Gestione Utente e Rango}
+\subsubsection{Utente e Rango}
 Il modello utente (\texttt{UserModel}) calcola dinamicamente il livello e il rango (es. "Guardiano", "Leggenda") in base ai punti esperienza (XP) accumulati con le scoperte. Questo aggiornamento avviene in tempo reale, sbloccando nuovi badge e contenuti nell'interfaccia.
 
-\subsection{Integrazione Dati Sensori (IoT)}
-Per fornire un quadro dello stato ambientale del Parco, l'applicazione integra dati provenienti da stazioni di monitoraggio reali. Il servizio \texttt{SensorService} interroga l'API  \cite{discover_er_api} ed effettua il parsing dei dati JSON ricevuti dalle stazioni (es. Bellocchio, Foce).
+\subsubsection{Segnalazioni}
+Gli utenti possono effettuare delle segnalazioni che verranno salvate nel database con immagine, posizione e una descrizione.
+
+\subsection{Integrazione Sensori}
+Per fornire un quadro dello stato ambientale del Parco, l'applicazione integra dati provenienti da stazioni di monitoraggio reali. Il servizio \texttt{SensorService} interroga l'API \cite{discover_er_api} ed effettua il parsing dei dati JSON ricevuti dalle stazioni (es. Bellocchio, Foce).
 
 \begin{listing}[H]
   \begin{minted}[frame=single, breaklines]{dart}
@@ -86,13 +90,13 @@ if (response.statusCode == 200) {
   return MapEntry(sensorName, value ?? "N/D");
 }
   \end{minted}
-  \caption{Parsing dei dati sensore in Dart}
+  \caption{Parsing dei dati sensore}
   \label{lst:sensor_parsing}
 \end{listing}
 
 Questi dati vengono poi presentati all'utente cliccando sulle icone delle stazioni sulla mappa, fornendo parametri come temperatura, umidità o livelli idrometrici aggiornati.
 
-\section{Interfaccia Utente e Componenti Core}
+\section{Interfaccia Utente}
 L'interfaccia è stata costruita utilizzando i principi del Material Design. Le schermate principali includono:
 
 \begin{itemize}
@@ -102,4 +106,4 @@ L'interfaccia è stata costruita utilizzando i principi del Material Design. Le 
 \end{itemize}
 
 \section{Gestione dello Stato}
-Per gestire la reattività dell'applicazione, è stato utilizzato il pattern Provider. La classe \texttt{AppProviders} centralizza la logica di business, permettendo ai widget di ascoltare i cambiamenti nei dati (come una nuova scoperta o l'aggiornamento dei sensori) e di ricostruirsi automaticamente solo quando necessario, ottimizzando le risorse del dispositivo.
+Per gestire la reattività dell'applicazione, è stato utilizzato il framework \textbf{Riverpod}. Il file \texttt{app\_providers.dart} raccoglie le definizioni dei provider globali, permettendo ai widget di ascoltare i cambiamenti nei dati (come una nuova scoperta o l'aggiornamento dei sensori) e di ricostruirsi automaticamente solo quando necessario, ottimizzando le risorse del dispositivo.
