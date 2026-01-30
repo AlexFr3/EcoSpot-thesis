@@ -12,6 +12,8 @@ Il progetto è stato strutturato seguendo una divisione in layer logici per gara
     \item \textbf{Presentation Layer}: Comprende i widget dell'interfaccia utente (\texttt{pages} e \texttt{widgets}), separando la logica di visualizzazione dallo stato dell'applicazione.
 \end{itemize}
 
+\subsection{Sincronizzazione dati}
+L'implementazione della logica reattiva si basa sull'utilizzo dei StreamProvider di Riverpod. Nel caso del tracciamento utente, il provider userPositionProvider sottoscrive lo stream di eventi del plugin Geolocator. Come mostrato nel Listing 3.1, il widget MapWidget consuma questo stato: ogni volta che il GPS rileva un movimento, il provider emette un nuovo oggetto Position, causando il rebuild parziale della sola componente mappa, senza intaccare il resto dell'interfaccia, ottimizzando così le risorse del dispositivo mobile...
 % --- AGGIUNTA LA SEZIONE MANCANTE ---
 \section{Sviluppo dell'Applicazione Mobile}
 Lo sviluppo si è concentrato sulla creazione di un'esperienza utente fluida, sfruttando le capacità multi-piattaforma di Flutter.
