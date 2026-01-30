@@ -134,17 +134,27 @@ Questa scelta progettuale offre vantaggi specifici per il contesto di EcoSpot:
 \end{itemize}
 
 \subsection{Entità Principali}
-La modellazione è strutturata attorno a tre entità principali, definite per soddisfare le esigenze di gamification e monitoraggio.
+La modellazione del database riflette le classi definite nel dominio applicativo (directory \texttt{models}), strutturate per supportare le funzionalità specifiche di EcoSpot.
 
 \begin{itemize}
-    \item \textbf{Profilo e Progressione Utente:} 
-    Il sistema deve garantire la persistenza dell'identità digitale del visitatore e del suo stato di avanzamento. L'entità Utente è progettata per storicizzare in tempo reale i \textit{Punti Esperienza} e il \textit{Livello}. Un requisito fondamentale è la gestione dello storico: il modello mantiene traccia univoca delle specie già sbloccate per evitare duplicazioni nelle ricompense e permettere la consultazione del proprio "diario di bordo" in sessioni successive.
+    \item \textbf{Utente:} 
+    Rappresenta il profilo del visitatore. Oltre ai dati anagrafici essenziali (UID, email, username), questa entità è fondamentale per la 
+    \textit{gamification}: memorizza il livello raggiunto, i punti esperienza totali e, tramite un array di stringhe, 
+    tiene traccia univoca di tutte le specie e le aree già scoperte, prevenendo duplicazioni nelle ricompense.
 
-    \item \textbf{Catalogo delle Specie e degli Habitat:} 
-    Questa entità funge da base di conoscenza. Il requisito principale è associare ogni specie a vincoli spaziali precisi. Il modello include le coordinate degli habitat e le soglie di distanza necessarie per abilitare la logica di \textit{geofencing}: il contenuto è sempre accessibile, ma soltanto quando vengono soddisfatti i requisiti di prossimità fisica l'habitat viene classificato come scoperto.
+    \item \textbf{Specie e Aree Verdi:} 
+    Questa entità unifica il catalogo della biodiversità. Sia la fauna che la flora sono modellate dalla stessa struttura dati. Ogni documento contiene le 
+    informazioni descrittive, i media, la rarità (per il calcolo dei punteggi) e i dati geospaziali necessari per attivare la scoperta quando l'utente entra 
+    nell'area designata.
 
-    \item \textbf{Segnalazioni di Citizen Science:} 
-    Per abilitare il monitoraggio partecipativo, il sistema gestisce un'entità dinamica dedicata alla raccolta dati. Le segnalazioni aggregano informazioni eterogenee: l'identità dell'osservatore, il riferimento temporale, la prova fotografica e la posizione geografica esatta dell'avvistamento, supportando un flusso di validazione dei dati scientifici.
+    \item \textbf{Segnalazioni:} 
+    Costituisce il nucleo della \textit{Citizen Science}. Questa entità registra i contributi degli utenti, collegando l'autore a una descrizione, un timestamp, 
+    una coordinata GPS precisa e un riferimento all'immagine caricata su Cloud Storage, creando un database distribuito di avvistamenti.
+ 
+    \item \textbf{Punti di Interesse e Sensori (POI):} 
+    Modella i luoghi fisici rilevanti. A differenza delle specie, i POI sono entità statiche che fungono da aggregatori per i dati ambientali: ogni POI 
+    contiene una lista di ID che lo collegano ai sensori IoT installati in loco (idrometri, termometri), permettendo all'app di visualizzare i dati 
+    telemetrici in tempo reale.
 \end{itemize}
 
 \subsection{Relazioni e Considerazioni Progettuali}
