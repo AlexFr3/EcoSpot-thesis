@@ -4,6 +4,39 @@
 
 Questo capitolo presenta l'analisi degli obiettivi e la progettazione del sistema EcoSpot, descrivendo l'architettura logica e le scelte tecnologiche adottate per lo sviluppo dell'applicazione mobile e la sua integrazione con i servizi cloud e IoT.
 
+\section{Analisi dei Requisiti}
+\label{sec:requirements}
+
+La fase di progettazione è stata preceduta da un'analisi dettagliata dei requisiti, volta a definire il perimetro funzionale e le caratteristiche qualitative del sistema EcoSpot.
+
+\subsection{Requisiti Funzionali}
+I requisiti funzionali descrivono le interazioni specifiche tra l'utente e il sistema e definiscono le necessità informative della base di dati. Sulla base degli obiettivi di progetto, sono stati definiti i seguenti casi d'uso:
+
+\begin{itemize}
+    \item \textbf{Esplorazione Geografica:} Il sistema deve fornire una mappa interattiva del Delta del Po basata su \textit{OpenStreetMap} che visualizzi in tempo reale la posizione GPS dell'utente, le aree di interesse naturalistico (flora e fauna) e le stazioni di monitoraggio ambientale. 
+    Il database deve mantenere un profilo utente persistente e sincronizzato che memorizzi in tempo reale lo stato di avanzamento, inclusi il livello raggiunto, 
+    il rango, i punti esperienza accumulati e l'inventario delle specie già scoperte. Data l'elevata densità di elementi informativi visualizzati 
+    contemporaneamente, il sistema deve integrare strumenti di ricerca testuale e filtri categoriali per permettere all'utente di gestire la complessità 
+    visiva e isolare i dati di interesse
+
+    \item \textbf{Rilevamento di Prossimità:} Per supportare la meccanica del "Turismo Lento", il sistema calcola costantemente la distanza tra l'utente e i 
+    punti di interesse (POI) o gli habitat. Al raggiungimento di una soglia di tolleranza specifica, definita come raggio di scoperta (variabile tra 450 metri per la fauna e 800 metri per la flora), l'applicazione sblocca il contenuto informativo e assegna una ricompensa in XP. 
+    
+    \item \textbf{Consultazione Dati Ambientali:} Il sistema deve ingerire dati provenienti da fonti esterne eterogenee, come stazioni IoT dislocate sul territorio. Il modello deve prevedere strutture flessibili per normalizzare letture di temperatura, livello idrometrico e conducibilità, rendendole consultabili in tempo quasi reale tramite la mappa.
+
+    \item \textbf{Segnalazione (Citizen Science):} Gli utenti autenticati possono inviare segnalazioni georeferenziate composte da descrizione testuale, posizione GPS (\texttt{GeoPoint}) e timestamp. Le prove fotografiche vengono archiviate su \textit{Cloud Storage}, mantenendo nel database un riferimento univoco all'URL dell'immagine.
+
+    \item \textbf{Integrità della Progressione:} Per incentivare l'uso continuativo e garantire la coerenza dei progressi personali, ogni scoperta deve essere registrata attraverso transazioni atomiche. Questo meccanismo impedisce la duplicazione dei punti esperienza (XP) e assicura che l'aggiornamento del livello e l'inserimento nell'inventario avvengano come un'unica operazione indivisibile.
+\end{itemize}
+
+\subsection{Requisiti Non Funzionali}
+Definiscono gli attributi di qualità necessari per garantire un'esperienza utente soddisfacente in un contesto outdoor:
+
+\begin{itemize}
+    \item \textbf{Usabilità e Contrasto:} L'interfaccia deve essere leggibile sotto luce solare diretta e supportare il passaggio dinamico tra tema chiaro e scuro.
+    \item \textbf{Performance e Offline:} Il rendering della mappa deve essere fluido. Il sistema deve permettere la consultazione dei dati anche in zone prive di copertura tramite caching locale.
+    \item \textbf{Efficienza Energetica:} L'uso del GPS deve essere ottimizzato per ridurre l'impatto sulla batteria durante le escursioni prolungate.
+\end{itemize}
 \section{Obiettivi del progetto}
 \label{sec:project_goals}
 
@@ -101,69 +134,90 @@ Infine, per contestualizzare l'esperienza nell'ambiente reale, il sistema agisce
     
     \label{fig:system_architecture_schema}
 \end{figure}
+\section{User Experience}
+\label{sec:ux_design}
 
-\section{Modellazione e Gestione dei Dati}
+La progettazione dell'interfaccia utente (UI) di EcoSpot risponde a precise esigenze ergonomiche e comunicative legate al contesto outdoor, adottando le linee guida del \textit{Material Design 3} per garantire coerenza e accessibilità.
+
+\subsection{Palette cromatica}
+La palette cromatica di EcoSpot è stata progettata per creare un legame visivo diretto con l'ambiente del Delta del Po e con le iniziative di 
+monitoraggio già attive sul territorio. Il colore primario è una tonalità di verde che è stato selezionato ispirandosi all'identità visiva del progetto 
+\textit{DISCOV.ER} (Distretti Idro-Socio-Culturali per l'Osservazione e la Valorizzazione delle Risorse) \cite{discover_project}. 
+
+Questa specifica tonalità di verde desaturato è stata scelta per richiamare la vegetazione alofila e le praterie sommerse tipiche delle aree lagunari, con l'obiettivo di trasmettere all'utente un senso di continuità tra l'interfaccia digitale e l'ecosistema circostante. 
+
+Un aspetto centrale della progettazione rimane l'uso semantico del colore per indicare la \textbf{rarità delle specie}, facilitando una valutazione istantanea del valore di un avvistamento sulla mappa:
+\begin{itemize}
+    \item \textbf{Grigio:} Specie Comuni (\texttt{rarityCommon}).
+    \item \textbf{Verde:} Specie Non Comuni (\texttt{rarityUncommon}).
+    \item \textbf{Blu:} Specie Rare (\texttt{rarityRare}).
+    \item \textbf{Viola:} Specie Epiche (\texttt{rarityEpic}).
+    \item \textbf{Oro:} Specie Leggendarie (\texttt{rarityLegendary}).
+\end{itemize}
+Questa codifica visiva permette all'utente di valutare istantaneamente il valore di una scoperta durante la navigazione sulla mappa.
+
+\subsection{Temi Adattivi}
+Per garantire l'usabilità in diverse condizioni ambientali (luce solare diretta o ore crepuscolari), l'applicazione implementa un sistema di \textbf{Temi Adattivi}. Il sistema rileva le preferenze del dispositivo per commutare tra:
+\begin{itemize}
+    \item \textbf{Light Mode:} Ottimizzato per la leggibilità sotto la luce solare, con sfondi chiari e testi ad alto contrasto.
+    \item \textbf{Dark Mode:} Utilizza sfondi scuri per ridurre l'affaticamento visivo e il consumo energetico su dispositivi con schermi OLED, oltre a minimizzare l'impatto luminoso sulla fauna durante le osservazioni serali.
+\end{itemize}
+L'utente può personalizzare questa impostazione tramite l'area dedicata, con persistenza del dato garantita dalla sincronizzazione sul profilo Firebase.
+
+\subsection{Pattern di Navigazione}
+La navigazione è stata progettata per minimizzare il carico cognitivo attraverso una struttura ibrida:
+\begin{itemize} 
+    \item \textbf{Bottom Navigation Bar:} Costituisce il punto di accesso principale per le macro-aree dell'applicazione (\textit{Esplora}, \textit{Statistiche} e \textit{Impostazioni}), garantendo una transizione rapida tra la mappa e l'area di gestione del profilo. La barra utilizza indicatori visivi e colori semantici per evidenziare la sezione attiva, riducendo lo sforzo mnemonico dell'utente.
+    \item \textbf{Modal Bottom Sheets:} Per la visualizzazione dei dettagli di specie, aree verdi e stazioni di monitoraggio, si è scelto di utilizzare dei pannelli a scorrimento che coprono solo parzialmente l'interfaccia. Questa scelta progettuale è fondamentale per preservare il contesto geografico: l'utente può consultare le informazioni descrittive o i dati telemetrici mantenendo visibile la propria posizione sulla mappa in background.
+    \item \textbf{Widget di Interazione Rapida:} La mappa integra elementi di controllo posizionati strategicamente per non ostruire la visuale. Sono presenti \textit{Floating Action Buttons} per l'attivazione dei filtri categoriali (layer), per l'invio di segnalazioni di \textit{Citizen Science} e per il ri-centramento della visuale GPS.
+    \item \textbf{Sistema di Ricerca e Suggerimenti:} Una barra di ricerca persistente permette di filtrare istantaneamente i contenuti della mappa. Il sistema fornisce suggerimenti dinamici basati sul nome della specie o dell'area verde, facilitando il reperimento di informazioni specifiche anche in presenza di una elevata densità di elementi cartografici.
+\end{itemize}
+\section{Modellazione e Progettazione dei Dati}
 \label{sec:data_modeling}
 
-La modellazione dei dati rappresenta una fase cruciale della progettazione del sistema EcoSpot. A differenza dei sistemi tradizionali basati su schemi rigidi relazionali, l'adozione di un'architettura \textbf{NoSQL Document-Oriented} (tramite Google Cloud Firestore) ha richiesto un approccio orientato alla flessibilità, alla scalabilità orizzontale e all'ottimizzazione delle performance di lettura. 
-
-Questa sezione analizza i requisiti informativi che hanno guidato la progettazione e descrive in dettaglio le entità logiche e le loro relazioni, garantendo che il sistema supporti efficacemente le funzionalità di gamification, citizen science e monitoraggio ambientale.
-
-\subsection{Requisiti Informativi del Sistema}
-Durante la fase di analisi dei requisiti, sono state identificate le necessità informative fondamentali che la base di dati deve soddisfare per abilitare le funzionalità dell'applicazione EcoSpot. La struttura dati è stata modellata per rispondere alle seguenti esigenze operative:
-
-\begin{itemize}
-    \item \textbf{Utente:} Il sistema deve mantenere un profilo utente persistente e sincronizzato tra i dispositivi. Oltre ai dati anagrafici di base (gestiti tramite provider di autenticazione), il database deve memorizzare in tempo reale lo stato di avanzamento nel gioco, includendo il livello raggiunto, i punti esperienza (XP) accumulati e l'inventario delle specie già scoperte.
-    
-    \item \textbf{Interazione Location-Based:} Per supportare la meccanica del ``Turismo Lento'', il modello dati deve associare ogni entità biologica o punto di interesse a coordinate geografiche precise (latitudine e longitudine) e a soglie di tolleranza specifiche (raggio di scoperta). Il sistema deve permettere query spaziali efficienti o verifiche lato client per determinare se un utente ha diritto a sbloccare un luogo.
-    
-    \item \textbf{Raccolta di Segnalazioni:} L'applicazione funge da strumento di raccolta dati sul campo. Il database deve poter immagazzinare segnalazioni create dagli utenti che includano non solo testo descrittivo, ma anche riferimenti a prove fotografiche (archiviate separatamente su Cloud Storage), timestamp precisi e la posizione georeferenziata dell'avvistamento, creando un archivio storico delle osservazioni naturalistiche.
-    
-    \item \textbf{Integrazione di Dati:} Il sistema deve essere in grado di ingerire e normalizzare dati provenienti da fonti esterne non strutturate, come le stazioni di monitoraggio idrografico. Il modello deve prevedere strutture flessibili per accogliere letture di temperatura, livello idrometrico e conducibilità, rendendole uniformi per la visualizzazione all'utente finale.
-    
-    \item \textbf{Integrità della Gamification:} Per incentivare l'uso continuativo, il database deve tracciare le azioni premianti in modo sicuro. Ogni scoperta deve essere registrata in modo atomico per evitare duplicazioni di punti esperienza, garantendo la coerenza dei progressi personali.
-\end{itemize}
+La traduzione dei requisiti informativi in una struttura dati coerente ha richiesto la progettazione di classi di dominio specifiche, atte a gestire la complessità delle interazioni spaziali e della progressione dell'utente. Il sistema adotta un paradigma NoSQL orientato ai documenti tramite \textit{Google Cloud Firestore}, ottimizzando le performance di lettura e la sincronizzazione in tempo reale.
 
 \subsection{Architettura del Database: Cloud Firestore}
-Per soddisfare i requisiti di scalabilità e sincronizzazione real-time, è stato scelto \textbf{Google Cloud Firestore}. In questo paradigma, i dati non sono organizzati in tabelle e righe, ma in \textbf{Collezioni} di \textbf{Documenti} JSON-like.
-Questa scelta progettuale offre vantaggi specifici per il contesto di EcoSpot:
+Per soddisfare i requisiti di scalabilità e sincronizzazione real-time, è stato scelto un database NoSQL organizzato in \textbf{Collezioni} di \textbf{Documenti} JSON-like. Questa scelta progettuale offre vantaggi specifici per il contesto di EcoSpot:
 \begin{itemize}
-    \item \textbf{Struttura Gerarchica:} Permette di incapsulare dati complessi (come la lista delle specie sbloccate) direttamente nel documento utente, riducendo la necessità di \textit{join} costose in fase di lettura e migliorando la reattività dell'app.
-    \item \textbf{Aggiornamenti in Tempo Reale:} Grazie ai listener nativi di Firestore, qualsiasi modifica critica al documento utente (es. un aumento di livello) viene propagata istantaneamente all'interfaccia dell'app senza necessità di refresh manuale.
-    \item \textbf{Funzionamento Offline:} Il database mantiene una cache locale sul dispositivo, permettendo agli utenti di consultare il proprio diario e le specie scoperte anche quando si trovano in zone del Parco del Delta del Po prive di copertura di rete, con sincronizzazione automatica al ripristino della connettività.
+    \item \textbf{Struttura Gerarchica:} Permette di incapsulare dati complessi, come la lista delle specie sbloccate, direttamente nel documento utente, migliorando la reattività dell'app.
+    \item \textbf{Aggiornamenti in Tempo Reale:} Grazie ai listener nativi, qualsiasi modifica critica (es. aumento di livello) viene propagata istantaneamente all'interfaccia senza refresh manuale.
+    \item \textbf{Funzionamento Offline:} Il database mantiene una cache locale, permettendo la consultazione dei dati anche in zone del Parco del Delta del Po prive di copertura di rete.
 \end{itemize}
 
-\subsection{Entità Principali}
-La modellazione del database riflette le classi definite nel dominio applicativo (directory \texttt{models}), strutturate per supportare le funzionalità specifiche di EcoSpot.
+\subsection{Entità del Dominio}
+La modellazione del database riflette le classi definite nel dominio applicativo, strutturate per supportare le funzionalità di gamification e monitoraggio:
 
 \begin{itemize}
-    \item \textbf{Utente:} 
-    Rappresenta il profilo del visitatore. Oltre ai dati anagrafici essenziali (UID, email, username), questa entità è fondamentale per la 
-    \textit{gamification}: memorizza il livello raggiunto, i punti esperienza totali e, tramite un array di stringhe, 
-    tiene traccia univoca di tutte le specie e le aree già scoperte, prevenendo duplicazioni nelle ricompense.
+    \item \textbf{Utente:} Memorizza lo stato dinamico della progressione, inclusi i punti esperienza (XP) e il registro delle scoperte 
+    (\texttt{visitedSpeciesIds}). La logica associata determina dinamicamente il \textit{rango} dell'utente (da "Esploratore" a "Leggenda del Delta") 
+    tramite estensioni dedicate.
+    
+    \item \textbf{Habitat e Aree Verdi:} Unifica fauna e flora in un modello che integra metadati e parametri geospaziali. Ogni specie definisce un raggio di 
+    scoperta (\texttt{discoveryRadius}) 450 metri per gli animali e 800 metri per le aree verdi per adattare il \textit{geofencing} alla natura dell'entità.
+    
+    \item \textbf{Punti di Interesse e API:} Modella le stazioni IoT e i punti di interesse. La struttura è popolata tramite polling asincrono che mappa 
+    ID sensore eterogenei a parametri fisici leggibili come temperatura, livello idrometrico e conducibilità.
+    
+    \item \textbf{Segnalazioni:} Gestisce i contributi di Citizen Science, associando i metadati dell'utente a coordinate GPS precise (\texttt{GeoPoint}) 
+    e riferimenti a risorse multimediali archiviate su \textit{Cloud Storage}.
+\end{itemize}
 
-    \item \textbf{Specie e Aree Verdi:} 
-    Questa entità unifica il catalogo della biodiversità. Sia la fauna che la flora sono modellate dalla stessa struttura dati. Ogni documento contiene le 
-    informazioni descrittive, i media, la rarità (per il calcolo dei punteggi) e i dati geospaziali necessari per attivare la scoperta quando l'utente entra 
-    nell'area designata.
+\subsection{Logica di Integrazione e Gamification}
+La progettazione prevede un livello di servizi dedicato all'orchestrazione dei dati:
 
-    \item \textbf{Segnalazioni:} 
-    Costituisce il nucleo della \textit{Citizen Science}. Questa entità registra i contributi degli utenti, collegando l'autore a una descrizione, un timestamp, 
-    una coordinata GPS precisa e un riferimento all'immagine caricata su Cloud Storage, creando un database distribuito di avvistamenti.
- 
-    \item \textbf{Punti di Interesse e Sensori (POI):} 
-    Modella i luoghi fisici rilevanti. A differenza delle specie, i POI sono entità statiche che fungono da aggregatori per i dati ambientali: ogni POI 
-    contiene una lista di ID che lo collegano ai sensori IoT installati in loco (idrometri, termometri), permettendo all'app di visualizzare i dati 
-    telemetrici in tempo reale.
+\begin{itemize}
+    \item \textbf{Valore Atteso della Progressione:} Il progresso verso il livello successivo è calcolato come il rapporto tra gli XP attuali e la soglia di 1000 XP per livello. Tale parametro rappresenta il \textbf{Valore Atteso} della crescita ed è visualizzato tramite indicatori lineari nella pagina delle statistiche.
+    
+    \item \textbf{Integrità delle Scoperte:} Per garantire la coerenza, il sistema utilizza transazioni atomiche durante la fase di scoperta. Ciò assicura che l'incremento di esperienza e la registrazione della specie avvengano come un'unica operazione indivisibile.
+    
+    \item \textbf{Contestualizzazione Ambientale:} L'integrazione con le API di \textit{Open-Meteo} arricchisce i POI con informazioni atmosferiche locali, calcolate dinamicamente in base alle coordinate geografiche del sensore selezionato.
 \end{itemize}
 
 \subsection{Relazioni e Considerazioni Progettuali}
-Nel paradigma NoSQL, le relazioni sono gestite in modo diverso rispetto ai database relazionali (SQL), privilegiando la performance di lettura rispetto alla rigorosa normalizzazione dei dati.
-
+Nel paradigma NoSQL, le relazioni privilegiano la performance di lettura rispetto alla normalizzazione:
 \begin{itemize}
-    \item \textbf{Relazione Utente-Specie (M:N):} Invece di utilizzare una tabella di join intermedia, la relazione è implementata salvando un array di ID direttamente nel documento dell'utente.
-    
-    \item \textbf{Relazione Utente-Segnalazioni (1:N):} Le segnalazioni mantengono un riferimento all'utente tramite il suo campo identificativo (\texttt{userId}). Per visualizzare lo storico personale, il sistema esegue una query indicizzata sulla collezione \texttt{reports} filtrando per l'ID dell'utente corrente.
-    
-    \item \textbf{Estensibilità:} Il modello è progettato per essere evolutivo. L'eventuale aggiunta di nuove entità può avvenire creando nuove collezioni senza richiedere migrazioni rigide dello schema esistente, garantendo che l'applicazione possa essere estesa nel tempo senza interruzioni di servizio.
+    \item \textbf{Relazione Utente-Specie (M:N):} Implementata salvando un array di identificatori direttamente nel documento utente per ridurre la necessità di \textit{join} costose.
+    \item \textbf{Relazione Utente-Segnalazioni (1:N):} Le segnalazioni mantengono un riferimento all'identificativo utente (\texttt{userId}), permettendo query indicizzate per visualizzare lo storico personale.
+    \item \textbf{Estensibilità:} Il modello permette l'aggiunta di nuove entità senza richiedere migrazioni rigide dello schema, garantendo un'evoluzione continua del sistema.
 \end{itemize}
