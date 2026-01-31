@@ -172,6 +172,63 @@ La navigazione è stata progettata per minimizzare il carico cognitivo attravers
     \item \textbf{Widget di Interazione Rapida:} La mappa integra elementi di controllo posizionati strategicamente per non ostruire la visuale. Sono presenti \textit{Floating Action Buttons} per l'attivazione dei filtri categoriali (layer), per l'invio di segnalazioni di \textit{Citizen Science} e per il ri-centramento della visuale GPS.
     \item \textbf{Sistema di Ricerca e Suggerimenti:} Una barra di ricerca persistente permette di filtrare istantaneamente i contenuti della mappa. Il sistema fornisce suggerimenti dinamici basati sul nome della specie o dell'area verde, facilitando il reperimento di informazioni specifiche anche in presenza di una elevata densità di elementi cartografici.
 \end{itemize}
+
+\subsection{Mockup dell'Interfaccia}
+\label{subsec:mockups}
+
+Sulla base dei requisiti funzionali e delle linee guida ergonomiche definite, sono stati realizzati i mockup ad alta fedeltà delle schermate principali del sistema. Queste interfacce illustrano la traduzione visiva dell'architettura informativa e dei principi di navigazione ibrida, mostrando come l'utente interagisce con le componenti di esplorazione, gamification e personalizzazione.
+
+Le Figure \ref{fig:mockups_access} e \ref{fig:mockups_management} illustrano il flusso utente principale:
+
+\begin{itemize}
+    \item \textbf{Schermata di Accesso (Login):} Costituisce il punto d'ingresso sicuro all'ecosistema EcoSpot. Il design pulito ed essenziale mette in risalto il branding dell'applicazione e offre opzioni chiare per l'autenticazione. È supportato l'accesso ibrido: tramite credenziali proprietarie (email e password) o mediante autenticazione federata (es. Account Google), sfruttando l'integrazione con Firebase Auth per garantire una gestione sicura dell'identità, necessaria per validare le attività di Citizen Science.
+
+    \item \textbf{Home Page (Esplorazione):} È il centro nevralgico dell'esperienza utente. La mappa interattiva (basata su OpenStreetMap) domina lo schermo, massimizzando l'area dedicata all'orientamento geografico. 
+    Per garantire un'immediata riconoscibilità dei punti di interesse (POI) e delle funzionalità, l'interfaccia utilizza un set di icone ad alto contrasto fornite dalla libreria \textit{Icons8}, che assicurano leggibilità e coerenza stilistica.
+    Elementi flottanti semi-trasparenti forniscono il contesto senza ostruire la visuale: in alto, la barra di ricerca con widget meteo e l'indicatore di livello/XP; a destra, i \textit{Floating Action Buttons} per azioni rapide (filtri, centraggio GPS, fotocamera); in basso, la \textit{Bottom Navigation Bar} per la navigazione strutturale.
+
+    \item \textbf{Statistiche (Progressione):} Questa sezione è dedicata al feedback sulla gamification e alla ritenzione dell'utente. Attraverso indicatori visivi chiari (barre di progresso, contatori), l'utente può monitorare il proprio percorso di crescita, visualizzare i punti esperienza (XP) accumulati, il rango attuale e la distanza dall'obiettivo successivo (Valore Atteso per il level-up). La schermata funge anche da registro storico delle specie scoperte, rinforzando il senso di realizzazione.
+
+    \item \textbf{Impostazioni (Personalizzazione):} Offre all'utente il controllo sull'esperienza d'uso. Oltre alla gestione del profilo e alla disconnessione sicura, questa schermata ospita i controlli di accessibilità e preferenza visiva. In particolare, il selettore per il Tema Adattivo (chiaro/scuro) permette di adeguare l'interfaccia alle condizioni di luminosità ambientale, garantendo la leggibilità sia sotto il sole diretto che durante le osservazioni crepuscolari.
+\end{itemize}
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.40\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mockups/login.png} 
+        \caption{Schermata di Login}
+        \label{fig:login_mockup}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.40\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mockups/home.png} 
+        \caption{Home Page}
+        \label{fig:home_mockup}
+    \end{subfigure}
+    \caption{Mockup delle schermate di accesso e navigazione principale. Nella Home Page, le icone utilizzate per i marker e l'interfaccia provengono 
+    dalla libreria Icons8.}
+    \label{fig:mockups_access}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.40\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mockups/statistiche.png} 
+        \caption{Schermata Statistiche}
+        \label{fig:stats_mockup}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.40\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mockups/impostazioni.png} 
+        \caption{Schermata Impostazioni}
+        \label{fig:settings_mockup}
+    \end{subfigure}
+    \caption{Mockup delle schermate di progressione utente (Statistiche) e configurazione dell'interfaccia (Impostazioni).}
+    \label{fig:mockups_management}
+\end{figure}
 \section{Modellazione e Progettazione dei Dati}
 \label{sec:data_modeling}
 
