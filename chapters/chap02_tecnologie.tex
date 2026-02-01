@@ -13,7 +13,7 @@ La fase di progettazione è stata preceduta da un'analisi dettagliata dei requis
 I requisiti funzionali descrivono le interazioni specifiche tra l'utente e il sistema e definiscono le necessità informative della base di dati. Sulla base degli obiettivi di progetto, sono stati definiti i seguenti casi d'uso:
 
 \begin{itemize}
-    \item \textbf{Esplorazione Geografica:} Il sistema deve fornire una mappa interattiva del Delta del Po basata su \textit{OpenStreetMap} che visualizzi in tempo reale la posizione GPS dell'utente, le aree di interesse naturalistico (flora e fauna) e le stazioni di monitoraggio ambientale. 
+    \item \textbf{Esplorazione Geografica:} Il sistema deve fornire una mappa interattiva del Delta del Po che visualizzi in tempo reale la posizione GPS dell'utente, le aree di interesse naturalistico (flora e fauna) e le stazioni di monitoraggio ambientale. 
     Il database deve mantenere un profilo utente persistente e sincronizzato che memorizzi in tempo reale lo stato di avanzamento, inclusi il livello raggiunto, 
     il rango, i punti esperienza accumulati e l'inventario delle specie già scoperte. Data l'elevata densità di elementi informativi visualizzati 
     contemporaneamente, il sistema deve integrare strumenti di ricerca testuale e filtri categoriali per permettere all'utente di gestire la complessità 
@@ -139,13 +139,13 @@ Per raggiungere gli obiettivi di sensibilizzazione ambientale e gamification, Ec
 Dati i requisiti funzionali precedentemente definiti, è possibile delineare l'architettura logica del sistema EcoSpot. La struttura è concepita come un ecosistema modulare composto da quattro componenti principali, che collaborano per garantire un'esperienza utente reattiva e scalabile.
 
 L'esperienza dell'utente è mediata interamente dallo \textit{smartphone}, che agisce sia come portale d'accesso ai contenuti sia come strumento di controllo delle funzionalità. L'applicazione integra \textbf{OpenStreetMap}, una piattaforma cartografica libera che fornisce dati geografici dettagliati e costantemente aggiornati da una comunità globale. 
-A differenza delle soluzioni proprietarie, l'integrazione di OpenStreetMap (tramite il motore di rendering \texttt{flutter\_map}) consente una personalizzazione avanzata della visualizzazione dei sentieri e delle aree naturali del Delta, permettendo all'utente di orientarsi e navigare in tempo reale verso i punti di interesse (POI) disseminati nel territorio.
+A differenza delle soluzioni proprietarie, l'integrazione di OpenStreetMap (tramite il motore di rendering \texttt{flutter\_map}) consente una personalizzazione avanzata della visualizzazione delle aree naturali del Delta, permettendo all'utente di orientarsi e navigare in tempo reale verso i punti di interesse (POI) disseminati nel territorio.
 
 Il cuore della gestione dei dati è affidato a \textbf{Google Cloud Firestore}. Questo database NoSQL orientato ai documenti è utilizzato per memorizzare in modo strutturato tutte le informazioni vitali del sistema: dai profili utente ai progressi di gioco (livelli e XP), fino all'inventario delle specie scoperte (i dettagli sulla struttura dati sono approfonditi nella Sezione \ref{sec:data_modeling}). La scelta di utilizzare una soluzione cloud-based, supportata da \textbf{Cloud Storage} per l'archiviazione delle immagini fotografiche, risponde all'esigenza di centralizzare i contributi di \textit{Citizen Science}, rendendo le segnalazioni immediatamente sicure e accessibili per future analisi, garantendo al contempo la sincronizzazione dei dati tra diversi dispositivi dello stesso utente (si veda Sezione \ref{sec:citizen_science}).
 
 Per la gestione delle logiche spaziali, il sistema sfrutta la potenza di calcolo locale del dispositivo attraverso il pacchetto \textbf{Geolocator}. Invece di dipendere costantemente dal server per ogni verifica, l'applicazione calcola direttamente sul client le distanze euclidee tra la posizione dell'utente e gli habitat. Questo approccio decentralizzato permette di validare le scoperte (meccanismo di \textit{geofencing}) in tempo reale e con latenza zero, riducendo il consumo di dati mobili e migliorando l'esperienza anche in aree con scarsa copertura di rete.
 
-Infine, per contestualizzare l'esperienza nell'ambiente reale, il sistema agisce come un aggregatore di dati esterni tramite protocolli \textbf{HTTP/REST}. L'applicazione interroga periodicamente le API di servizi terzi, come le stazioni di monitoraggio IoT per i livelli idrometrici e il servizio \textbf{Open-Meteo} per le condizioni atmosferiche. Questa integrazione assicura che le informazioni mostrate all'utente non siano solo statiche, ma riflettano le condizioni dinamiche e vitali dell'ecosistema lagunare al momento della visita.
+Infine, per contestualizzare l'esperienza nell'ambiente reale, il sistema agisce come un aggregatore di dati esterni tramite protocolli \textbf{HTTP/REST}. L'applicazione interroga periodicamente le API di servizi terzi, come le stazioni di monitoraggio \ac{IoT} per i livelli idrometrici e il servizio \textbf{Open-Meteo} per le condizioni atmosferiche. Questa integrazione assicura che le informazioni mostrate all'utente non siano solo statiche, ma riflettano le condizioni dinamiche e vitali dell'ecosistema lagunare al momento della visita.
 
 \begin{figure}[htbp]
     \centering
@@ -202,16 +202,31 @@ Sulla base dei requisiti funzionali e delle linee guida ergonomiche definite, so
 Le Figure \ref{fig:mockups_access} e \ref{fig:mockups_management} illustrano il flusso utente principale:
 
 \begin{itemize}
-    \item \textbf{Schermata di Accesso (Login):} Costituisce il punto d'ingresso sicuro all'ecosistema EcoSpot. Il design pulito ed essenziale mette in risalto il branding dell'applicazione e offre opzioni chiare per l'autenticazione. È supportato l'accesso ibrido: tramite credenziali proprietarie (email e password) o mediante autenticazione federata (es. Account Google), sfruttando l'integrazione con Firebase Auth per garantire una gestione sicura dell'identità, necessaria per validare le attività di Citizen Science.
+    \item \textbf{Schermata di Accesso:} Costituisce il punto d'ingresso sicuro all'ecosistema EcoSpot. Il design pulito ed essenziale mette in 
+    risalto il branding dell'applicazione e offre opzioni chiare per l'autenticazione. È supportato l'accesso ibrido: tramite credenziali proprietarie 
+    (email e password) o mediante autenticazione federata (es. Account Google), sfruttando l'integrazione con Firebase Auth per garantire una gestione 
+    sicura dell'identità, necessaria per validare le attività di Citizen Science.
 
-    \item \textbf{Home Page (Esplorazione):} È il centro nevralgico dell'esperienza utente. La mappa interattiva (basata su OpenStreetMap) domina lo schermo, massimizzando l'area dedicata all'orientamento geografico. 
-    Per garantire un'immediata riconoscibilità dei punti di interesse (POI) e delle funzionalità, l'interfaccia utilizza un set di icone ad alto contrasto fornite dalla libreria \textit{Icons8}, che assicurano leggibilità e coerenza stilistica.
-    Elementi flottanti semi-trasparenti forniscono il contesto senza ostruire la visuale: in alto, la barra di ricerca con widget meteo e l'indicatore di livello/XP; a destra, i \textit{Floating Action Buttons} per azioni rapide (filtri, centraggio GPS, fotocamera); in basso, la \textit{Bottom Navigation Bar} per la navigazione strutturale.
+   \item \textbf{Home Page:} Rappresenta il fulcro dell'esperienza utente. La mappa interattiva a tutto schermo domina l'interfaccia, 
+    massimizzando l'area dedicata all'orientamento spaziale. 
+    Per garantire l'immediata identificazione degli elementi cartografici quali Punti di Interesse (POI), fauna locale e aree verdi e la chiara accessibilità 
+    delle funzionalità, sono state adottate icone ad alto contrasto che assicurano leggibilità e coerenza stilistica.
+    L'interfaccia utilizza un layout a livelli (\textit{overlay}), con elementi flottanti posizionati strategicamente per fornire contesto senza ostruire la visuale: 
+    nella parte superiore, la barra di ricerca è affiancata dal widget meteo; 
+    lungo il margine destro sono disposti in colonna i \textit{Floating Action Buttons} per le azioni rapide (gestione dei livelli mappa e invio segnalazioni); 
+    in basso a destra trova spazio il pulsante per il ricentraggio GPS, mentre alla base l'interfaccia è delimitata dalla 
+    \textit{Bottom Navigation Bar} per la navigazione strutturale tra le sezioni.
+        
+    \item \textbf{Statistiche:} Questa sezione è dedicata al feedback sulla gamification e alla ritenzione dell'utente. 
+    Attraverso indicatori visivi chiari (barre di progresso, contatori), l'utente può monitorare il proprio percorso di crescita, visualizzare i punti 
+    esperienza (XP) accumulati, il rango attuale e la distanza dall'obiettivo successivo. La schermata funge anche da 
+    registro storico delle specie scoperte, rinforzando il senso di realizzazione.
 
-    \item \textbf{Statistiche (Progressione):} Questa sezione è dedicata al feedback sulla gamification e alla ritenzione dell'utente. Attraverso indicatori visivi chiari (barre di progresso, contatori), l'utente può monitorare il proprio percorso di crescita, visualizzare i punti esperienza (XP) accumulati, il rango attuale e la distanza dall'obiettivo successivo (Valore Atteso per il level-up). La schermata funge anche da registro storico delle specie scoperte, rinforzando il senso di realizzazione.
-
-    \item \textbf{Impostazioni (Personalizzazione):} Offre all'utente il controllo sull'esperienza d'uso. Oltre alla gestione del profilo e alla disconnessione sicura, questa schermata ospita i controlli di accessibilità e preferenza visiva. In particolare, il selettore per il Tema Adattivo (chiaro/scuro) permette di adeguare l'interfaccia alle condizioni di luminosità ambientale, garantendo la leggibilità sia sotto il sole diretto che durante le osservazioni crepuscolari.
+    \item \textbf{Impostazioni:} Offre all'utente il controllo sull'esperienza d'uso. Oltre alla gestione del profilo e alla disconnessione sicura, questa 
+    schermata ospita i controlli di accessibilità e preferenza visiva. In particolare, il selettore per il Tema Adattivo (chiaro/scuro) permette di adeguare 
+    l'interfaccia alle condizioni di luminosità ambientale, garantendo la leggibilità sia sotto il sole diretto che durante le osservazioni crepuscolari.
 \end{itemize}
+
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.30\textwidth}
@@ -274,10 +289,10 @@ La modellazione del database riflette le classi definite nel dominio applicativo
     \item \textbf{Habitat e Aree Verdi:} Unifica fauna e flora in un modello che integra metadati e parametri geospaziali. Ogni specie definisce un raggio di 
     scoperta (\texttt{discoveryRadius}) 450 metri per gli animali e 800 metri per le aree verdi per adattare il \textit{geofencing} alla natura dell'entità.
     
-    \item \textbf{Punti di Interesse e API:} Modella le stazioni IoT e i punti di interesse. La struttura è popolata tramite polling asincrono che mappa 
+    \item \textbf{Punti di Interesse e API:} Modella le stazioni \ac{IoT} e i punti di interesse. La struttura è popolata tramite polling asincrono che mappa 
     ID sensore eterogenei a parametri fisici leggibili come temperatura, livello idrometrico e conducibilità.
     
-    \item \textbf{Segnalazioni:} Gestisce i contributi di Citizen Science, associando i metadati dell'utente a coordinate GPS precise (\texttt{GeoPoint}) 
+    \item \textbf{Segnalazioni:} Gestisce i contributi di Citizen Science, associando i metadati dell'utente a coordinate GPS precise  
     e riferimenti a risorse multimediali archiviate su \textit{Cloud Storage}.
 \end{itemize}
 
@@ -289,7 +304,7 @@ La progettazione prevede un livello di servizi dedicato all'orchestrazione dei d
     
     \item \textbf{Integrità delle Scoperte:} Per garantire la coerenza, il sistema utilizza transazioni atomiche durante la fase di scoperta. Ciò assicura che l'incremento di esperienza e la registrazione della specie avvengano come un'unica operazione indivisibile.
     
-    \item \textbf{Contestualizzazione Ambientale:} L'integrazione con le API di \textit{Open-Meteo} arricchisce i POI con informazioni atmosferiche locali, calcolate dinamicamente in base alle coordinate geografiche del sensore selezionato.
+    \item \textbf{Contestualizzazione Ambientale:} L'integrazione con le API di \textit{Open-Meteo} arricchisce i POI con informazioni atmosferiche locali, calcolate dinamicamente in base alle coordinate geografiche dello stesso.
 \end{itemize}
 
 \subsection{Relazioni e Considerazioni Progettuali}
