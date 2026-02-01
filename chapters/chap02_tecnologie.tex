@@ -97,12 +97,33 @@ Le principali componenti progettuali includono:
 
 Questa architettura modulare consente di mantenere separati i livelli di presentazione (Widget Flutter), gestione dello stato (Riverpod) e servizi dati (Firebase/API), favorendo la manutenibilità del codice e la possibilità di estendere le funzionalità senza impattare sulla stabilità del sistema esistente.
 
-\subsection{Gestione dello Stato: Riverpod}
-La complessità derivante dalla gestione simultanea di flussi dati eterogenei è risolta mediante \textbf{Riverpod}. L'architettura dei provider orchestra i principali flussi applicativi distinguendo le sorgenti:
-\begin{itemize}
-    \item \textbf{Stream Providers:} Gestiscono i dati in tempo reale. Il \texttt{userPositionProvider} ascolta costantemente gli aggiornamenti del GPS, mentre \texttt{userProfileProvider} mantiene sincronizzata la UI con le modifiche al documento utente su Firestore.
-    \item \textbf{Future Providers:} Gestiscono operazioni asincrone su richiesta singola. Il \texttt{speciesProvider} aggrega i dati statici delle specie con lo storico delle scoperte dell'utente per calcolare lo stato di sblocco, mentre \texttt{sensorsProvider} invoca i servizi esterni per il recupero dei dati telemetrici.
-\end{itemize}
+\subsection{Riverpod}
+
+Per garantire la scalabilità e la manutenibilità di un ecosistema complesso come \textbf{EcoSpot}, l'architettura software si fonda su \textbf{Riverpod}, un framework di 
+\textit{Reactive Caching} e \textit{Dependency Injection}. A differenza di approcci tradizionali, Riverpod è stato selezionato non solo per la gestione dello stato, 
+ma per orchestrare in modo dichiarativo e sicuro il flusso di dati eterogenei (Firebase, API REST, sensori GPS) che convergono nell'applicazione.
+
+L'adozione di Riverpod ha apportato vantaggi progettuali cruciali:
+
+\begin{description}
+    \item[1. Separazione delle Responsabilità] \hfill \\
+    L'architettura disaccoppia nettamente l'interfaccia utente (UI) dalla logica di business. I widget, come la mappa interattiva (\texttt{MapWidget}) o le schede di dettaglio, non contengono logica di recupero dati; si limitano a ``osservare'' (tramite \texttt{ref.watch}) lo stato fornito dai provider. Questo rende il codice modulare, facilitando il testing e la manutenzione futura.
+
+    \item[2. Gestione Unificata dell'Asincronicità] \hfill \\
+    Il progetto deve gestire sorgenti dati con nature temporali opposte: flussi in tempo reale (posizione GPS, stato di autenticazione) e chiamate asincrone puntuali 
+    (dati meteo, API sensori). Riverpod astrae questa complessità, che gestisce automaticamente gli stati di caricamento, errore e successo. 
+    Ciò garantisce che l'UI non si blocchi mai e possa reagire istantaneamente ai cambiamenti, come l'aggiornamento automatico della mappa al variare della posizione utente.
+
+    \item[3. Dependency Injection Dichiarativa] \hfill \\
+    Uno dei punti di forza implementati è la capacità dei provider di dipendere l'uno dall'altro. Un esempio chiave nel progetto è lo \texttt{speciesProvider}: esso combina i dati 
+    statici delle specie con il profilo dinamico dell'utente. Quando l'utente effettua una nuova scoperta, il provider ricalcola automaticamente quali 
+    specie segnare come ``visitate'', propagando l'aggiornamento a tutta l'app senza codice imperativo o callback complessi.
+
+    \item[4. Sicurezza ``Compile-safe''] \hfill \\
+    A differenza di altre soluzioni, Riverpod elimina a tempo di compilazione errori comuni come il \texttt{ProviderNotFoundException}, garantendo che ogni componente abbia sempre accesso alle dipendenze necessarie (come \texttt{AuthService} o \texttt{DatabaseHelper}) in modo sicuro e tipizzato.
+\end{description}
+
+In sintesi, Riverpod agisce come il sistema nervoso dell'applicazione, trasformando eventi discreti e stream di dati in uno stato coerente e reattivo che guida l'esperienza utente.
 
 \subsection{Integrazione di Servizi e Fonti Dati}
 Per raggiungere gli obiettivi di sensibilizzazione ambientale e gamification, EcoSpot non opera come un sistema isolato, ma agisce come collettore di dati provenienti da fonti eterogenee. L'architettura è stata progettata per integrare servizi di terze parti che arricchiscono l'esperienza utente con informazioni contestuali in tempo reale.
@@ -191,16 +212,16 @@ Le Figure \ref{fig:mockups_access} e \ref{fig:mockups_management} illustrano il 
 
     \item \textbf{Impostazioni (Personalizzazione):} Offre all'utente il controllo sull'esperienza d'uso. Oltre alla gestione del profilo e alla disconnessione sicura, questa schermata ospita i controlli di accessibilità e preferenza visiva. In particolare, il selettore per il Tema Adattivo (chiaro/scuro) permette di adeguare l'interfaccia alle condizioni di luminosità ambientale, garantendo la leggibilità sia sotto il sole diretto che durante le osservazioni crepuscolari.
 \end{itemize}
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.40\textwidth}
+    \begin{subfigure}[b]{0.30\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/mockups/login.png} 
         \caption{Schermata di Login}
         \label{fig:login_mockup}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.40\textwidth}
+    \begin{subfigure}[b]{0.30\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/mockups/home.png} 
         \caption{Home Page}
@@ -213,20 +234,20 @@ Le Figure \ref{fig:mockups_access} e \ref{fig:mockups_management} illustrano il 
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.40\textwidth}
+    \begin{subfigure}[b]{0.30\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/mockups/statistiche.png} 
         \caption{Schermata Statistiche}
         \label{fig:stats_mockup}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.40\textwidth}
+    \begin{subfigure}[b]{0.30\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/mockups/impostazioni.png} 
         \caption{Schermata Impostazioni}
         \label{fig:settings_mockup}
     \end{subfigure}
-    \caption{Mockup delle schermate di progressione utente (Statistiche) e configurazione dell'interfaccia (Impostazioni).}
+    \caption{Mockup delle schermate di progressiGeograficane utente (Statistiche) e configurazione dell'interfaccia (Impostazioni).}
     \label{fig:mockups_management}
 \end{figure}
 \section{Modellazione e Progettazione dei Dati}
