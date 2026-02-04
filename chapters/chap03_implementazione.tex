@@ -1,111 +1,373 @@
 \chapter{Sviluppo e Implementazione}
 \label{chap:implementation}
 
-Questo capitolo descrive le fasi realizzative dell'applicazione \textit{EcoSpot}, analizzando l'architettura del software, le scelte tecniche per lo sviluppo mobile e l'implementazione delle funzionalità core come la mappa interattiva, il sistema di gamification e l'integrazione dei sensori IoT.
+Questo capitolo descrive le scelte progettuali e le soluzioni tecniche adottate per la realizzazione del sistema \textit{EcoSpot}. 
+La trattazione è suddivisa in due macro-aree: l'applicazione mobile, sviluppata in Flutter per garantire la compatibilità multipiattaforma, e l'integrazione con i servizi di backend e \ac{IoT} per la gestione dei dati e della sensoristica.
 
 \section{Architettura del Progetto}
-Il progetto è stato strutturato seguendo una divisione in layer logici per garantire manutenibilità e scalabilità del codice. La cartella sorgente (\texttt{lib}) è organizzata nei seguenti moduli principali:
+Il progetto è stato strutturato seguendo una divisione in layer logici per garantire manutenibilità, scalabilità e testabilità del codice. La cartella 
+sorgente è organizzata nei seguenti moduli principali:
 
 \begin{itemize}
-    \item \textbf{Data Layer}: Contiene le definizioni delle entità (es. \texttt{UserModel}, \texttt{Species}, \texttt{SensorData}) e la logica di persistenza dei dati.
-    \item \textbf{Service Layer}: Gestisce la comunicazione con i servizi esterni. Qui risiedono \texttt{AuthService} per l'autenticazione, \texttt{SensorService} per i dati IoT e \texttt{WeatherService} per le API meteo.
-    \item \textbf{Presentation Layer}: Comprende i widget dell'interfaccia utente (\texttt{pages} e \texttt{widgets}), separando la logica di visualizzazione dallo stato dell'applicazione.
+    \item \textbf{Data Layer}: Contiene le definizioni delle entità fondamentali del dominio. Qui risiedono le classi \texttt{UserModel} per la gestione del profilo utente, \texttt{Species} per la catalogazione di flora e fauna e \texttt{SensorData} per la gestione delle rilevazioni ambientali. Include inoltre i file di configurazione statica come \texttt{SensorConfig} e \texttt{Env}.
+    
+    \item \textbf{Service Layer}: Gestisce la comunicazione con le sorgenti dati esterne. In questo modulo sono stati implementati:
+    \begin{itemize}
+        \item \texttt{AuthService}: Per l'astrazione delle logiche di autenticazione Firebase (Google Sign-In, Email/Password e Accesso Anonimo).
+        \item \texttt{DatabaseHelper}: Per le operazioni \ac{CRUD} sul database NoSQL Cloud Firestore e lo storage dei file multimediali.
+        \item \texttt{SensorService}: Per il recupero dei dati IoT tramite chiamate REST API verso l'endpoint dedicato.
+        \item \texttt{WeatherService}: Per l'integrazione con le \ac{API} di Open-Meteo.
+    \end{itemize}
+    
+    \item \textbf{State Management Layer}: Utilizza il pacchetto \textbf{Riverpod} per la gestione dello stato reattivo e la \textit{Dependency Injection} \ref{riverpod}. 
+    Il file \texttt{app\_providers.dart} centralizza i provider globali, gestendo flussi asincroni come lo stato dell'autenticazione e il caricamento dei 
+    dati geo-spaziali.
+    
+    \item \textbf{Presentation Layer}: Comprende i widget dell'interfaccia utente, separando le pagine principali (es. \texttt{HomePage}, 
+    \texttt{StatisticsPage}) dai componenti riutilizzabili (es. \texttt{MapWidget}) e dalla definizione del tema visivo.
 \end{itemize}
-
 \subsection{Sincronizzazione dati}
-L'implementazione della logica reattiva si basa sull'utilizzo degli \texttt{StreamProvider} di Riverpod. Nel caso del tracciamento utente, il provider \texttt{userPositionProvider} sottoscrive lo stream di eventi del plugin Geolocator. Come mostrato nella sezione successiva, il widget \texttt{MapWidget} consuma questo stato: ogni volta che il GPS rileva un movimento, il provider emette un nuovo oggetto \texttt{Position}, causando il rebuild parziale della sola componente mappa senza intaccare il resto dell'interfaccia, ottimizzando così le risorse del dispositivo mobile.
+L'implementazione della logica reattiva si basa sull'utilizzo degli \texttt{StreamProvider} di Riverpod, un pattern che permette di gestire flussi di dati asincroni garantendo che l'interfaccia si aggiorni automaticamente al variare dello stato sottostante.
+
+Nel caso del tracciamento utente, il provider \texttt{userPositionProvider} (definito in \texttt{app\_providers.dart}) funge da ponte tra l'hardware del dispositivo e il livello logico dell'applicazione. Esso sottoscrive lo stream di eventi del plugin \textit{Geolocator}, gestendo preliminarmente i permessi di localizzazione e emettendo oggetti \texttt{LatLng} solo quando disponibili.
+
+Di seguito è riportata l'implementazione del provider, che incapsula la complessità della gestione dei permessi e la generazione dello stream:
+
+\begin{listing}[H]
+\begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
+  // File: lib/providers/app_providers.dart
+
+final userPositionProvider = StreamProvider<LatLng?>((ref) async* {
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    yield null;
+    return;
+  }
+
+  LocationPermission permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      yield null;
+      return;
+    }
+  }
+
+  // Generazione continua delle coordinate
+  await for (final position in Geolocator.getPositionStream()) {
+    yield LatLng(position.latitude, position.longitude);
+  }
+});
+\end{minted}
+\end{listing}
+
+Il widget \texttt{MapWidget} consuma questo stato non solo per aggiornare la visualizzazione, ma anche per innescare logiche di business critiche. 
+Ogni aggiornamento di posizione invoca il metodo \texttt{\_checkDiscoveries}, che confronta la posizione attuale dell'utente con le coordinate dell'habitat 
+delle specie non ancora visitate, utilizzando la classe \texttt{Distance} di \textit{latlong2}.
+\begin{listing}[H]
+  \begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
+  // File: lib/widgets/map_widget.dart
+
+  void _checkDiscoveries(LatLng userLocation) {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    final allSpecies = ref.read(speciesProvider).valueOrNull ?? [];
+
+    for (var species in allSpecies) {
+      if (species.isVisited) continue;
+
+      // Calcolo della distanza geodetica
+      final double meters = _distanceCalculator.as(
+          LengthUnit.Meter, userLocation, species.centerPoint);
+
+      // Trigger della scoperta se nel raggio (discoveryRadius)
+      if (meters <= species.discoveryRadius) {
+        _triggerDiscovery(user.uid, species);
+      }
+    }
+  }
+  \end{minted}
+\end{listing}
+
+Questo approccio disaccoppia la ricezione del dato dalla logica applicativa, ottimizzando le risorse del dispositivo mobile.
 
 \section{Sviluppo dell'Applicazione Mobile}
 Lo sviluppo si è concentrato sulla creazione di un'esperienza utente fluida, sfruttando le capacità multi-piattaforma di Flutter.
 
 \subsection{Mappa Interattiva e Clustering}
-La visualizzazione cartografica è il punto centrale dell'interazione ed è gestita dal widget \texttt{MapWidget}, che integra la libreria \texttt{flutter\_map} \cite{fluttermap}. 
+La visualizzazione cartografica è il punto centrale dell'interazione ed è gestita dal widget \texttt{MapWidget}, che integra la libreria \textit{flutter\_map} 
+per il rendering di mappe basate su tiles OpenStreetMap.
 
-Per gestire l'elevato numero di marker (animali, piante, sensori) senza compromettere le prestazioni di rendering, è stato implementato un sistema di clustering tramite il pacchetto \texttt{flutter\_map\_marker\_cluster}. Questo permette di raggruppare visivamente i punti di interesse vicini in un unico indicatore numerico quando lo zoom della mappa è basso, espandendosi automaticamente quando l'utente ingrandisce la visuale.
+L'architettura della mappa è basata su uno \texttt{Stack} di layer sovrapposti, che permette di separare il livello di base (le tiles geografiche) dai 
+livelli informativi (marker e UI). Per garantire prestazioni elevate anche con un numero crescente di elementi sulla mappa, è stata adottata una strategia 
+ibrida di rendering:
 
-Il codice \ref{lst:map_markers} mostra come vengono renderizzati i marker per le aree verdi utilizzando i widget nativi di Flutter:
+\begin{itemize}
+    \item \textbf{Gestione Layer e Filtri:} L'utente ha la possibilità di attivare o disattivare dinamicamente diverse categorie di marker (Fauna, Aree Verdi, Sensori, Punti di Interesse) tramite un dialog di configurazione. Questa logica è gestita tramite variabili di stato booleane (es. \texttt{\_showAnimals}, \texttt{\_showSensors}) che condizionano il rendering dei rispettivi \texttt{MarkerLayer} all'interno del metodo \texttt{build}.
+    
+    \item \textbf{Clustering dei Punti di Interesse (POI):} Per evitare il sovraffollamento visivo (cluttering) quando si visualizzano i numerosi Punti di 
+    Interesse (configurati in \texttt{PoiConfig.points}) e per non compromettere le prestazioni di rendering, è stato implementato un sistema di clustering 
+    tramite il pacchetto \textit{flutter\_map\_marker\_cluster}. Questa libreria raggruppa automaticamente i marker vicini in un unico indicatore 
+    circolare contenente il numero di elementi nel cluster quando lo zoom della mappa è basso, che si espande (de-cluster) automaticamente 
+    aumentando il livello di zoom.
+\end{itemize}
+
+Di seguito è riportata la configurazione del layer di clustering, che definisce il raggio di aggregazione e il builder personalizzato per l'indicatore numerico:
 
 \begin{listing}[H]
-\begin{minted}[frame=single, breaklines]{dart}
-// Rendering dei marker sulla mappa (estratto da MapWidget)
-...widget.greenAreas.map((area) {
-  return Marker(
-    point: area.centerPoint,
-    width: 70,
-    height: 70,
-    child: GestureDetector(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          builder: (context) => GreenAreaDetailSheet(species: area),
+  \begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
+    // File: lib/widgets/map_widget.dart
+
+  MarkerClusterLayerWidget(
+    options: MarkerClusterLayerOptions(
+      maxClusterRadius: 60, // Raggio di aggregazione in pixel
+      disableClusteringAtZoom: 16, // Disabilita clustering a zoom elevati
+      size: const Size(40, 40),
+      markers: poiMarkers, // Lista dei marker POI
+      builder: (context, markers) {
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+          ),
+          child: Center(
+            child: Text(
+              markers.length.toString(),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
         );
       },
-      child: Image.asset(area.imagePath),
     ),
-  );
-})
-\end{minted}
-\caption{Rendering dei marker interattivi sulla mappa}
-\label{lst:map_markers}
+  )
+  \end{minted}
+\end{listing}
+
+
+Al contrario dei POI, gli elementi faunistici sono renderizzati singolarmente per evidenziare attributi specifici immediati: ogni marker animale è circondato 
+da un bordo colorato che ne indica la rarità (es. oro per "Leggendario", grigio per "Comune"), permettendo all'utente di identificare a colpo d'occhio le 
+specie di maggior valore. L'interazione con i marker apre schede di dettaglio modali (si veda Figura \ref{fig:species_detail_sheet} \texttt{SpeciesDetailSheet}) o finestre di dialogo per i sensori, 
+fornendo un'esperienza utente fluida e informativa.
+
+La Figura \ref{fig:home_map} mostra la schermata principale dell'applicazione, dove l'utente può visualizzare la propria posizione in tempo reale e i punti di interesse circostanti.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/app_img/home.png}
+        \caption{Schermata principale con mappa interattiva.}
+        \label{fig:home_map}
+    \end{minipage}
+    \hfill 
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/app_img/species_details.png}
+        \caption{Dettaglio specie con scheda informativa.}
+        \label{fig:species_detail_sheet}
+    \end{minipage}
+\end{figure}
+
+Inoltre, l'utente ha la possibilità di gestire la stratificazione dei contenuti visualizzati sulla mappa tramite un apposito pannello di controllo 
+(Figura \ref{fig:layers}). L'implementazione tecnica di questa funzionalità risiede nel metodo \texttt{\_openFilterDialog}, che istanzia un'interfaccia modale contenente una serie di interruttori (\texttt{SwitchListTile}).
+
+Oltre alla visualizzazione, i marker sono interattivi. Come mostrato nel Codice \ref{lst:map_markers}, l'utilizzo di \texttt{GestureDetector} permette di aprire schede di dettaglio modali (\texttt{showModalBottomSheet}) al tocco dell'utente.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/app_img/layers.png}
+    \caption{Pannello per la gestione dei livelli e filtri della mappa.}
+    \label{fig:layers}
+\end{figure}
+
+Per le \textbf{Aree Verdi} come per le specie di animali, è stata implementata una logica che associa a ogni entità geografica un widget \texttt{Marker} 
+personalizzato.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/app_img/green_area_details.png}
+    \caption{Dettaglio area verde con scheda informativa}
+    \label{fig:green_area_details}
+\end{figure} 
+
+Come illustrato nel seguente Codice\ref{lst:map_markers}, ogni marker viene incapsulato in un \texttt{GestureDetector}: questo permette di 
+intercettare l'evento \texttt{onTap} dell'utente e scatenare l'apertura della scheda di dettaglio (\texttt{GreenAreaDetailSheet}) tramite una modale dal basso,
+garantendo un'esperienza di navigazione fluida e intuitiva.
+
+
+\begin{listing}[H]
+  \begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
+  // Rendering dei marker delle aree verdi (estratto da MapWidget)
+  ...widget.greenAreas.map((area) {
+    return Marker(
+      point: area.centerPoint,
+      width: 70,
+      height: 70,
+      alignment: Alignment.topCenter,
+      child: GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => GreenAreaDetailSheet(species: area),
+          );
+        },
+        child: Image.asset(area.imagePath),
+      ),
+    );
+  })
+  \end{minted}
+  \caption{Rendering dei marker interattivi sulla mappa}
+  \label{lst:map_markers}
 \end{listing}
 
 \subsection{Gestione Gamification}
-Il cuore dell'esperienza utente è il sistema di scoperta ("Discovery"), progettato per incentivare l'esplorazione fisica del Parco. L'app calcola costantemente la distanza geodetica tra la posizione dell'utente e quella delle specie target.
+Il cuore dell'esperienza utente è il sistema di scoperta ("Discovery"), progettato per incentivare l'esplorazione fisica del Parco. L'applicazione calcola costantemente la distanza geodetica tra la posizione dell'utente e quella delle specie target, sfruttando la precisione offerta dal pacchetto \texttt{latlong2}.
 
 \subsubsection{Logica di Scoperta}
-Quando la distanza rilevata è inferiore al parametro \texttt{discoveryRadius}, viene invocato il metodo di scoperta. L'algoritmo (Listing \ref{lst:discovery}) è implementato sfruttando la precisione del GPS del dispositivo mobile per validare la presenza dell'utente in loco.
+Il meccanismo di controllo avviene in background ogni qualvolta il GPS rileva un cambiamento di posizione. L'algoritmo (Listing \ref{lst:discovery}) itera sulle entità non ancora visitate e verifica se la distanza corrente è inferiore al parametro \texttt{discoveryRadius}, che varia dinamicamente in base alla tipologia di specie (es. 450m per la fauna, 800m per le aree verdi).
+
+Quando la condizione è soddisfatta, viene invocato il metodo di scoperta che esegue due azioni parallele:
+\begin{itemize}
+    \item \textbf{Persistenza Atomica:} Una transazione su Firestore registra l'ID della specie nel profilo utente e incrementa i punti esperienza, garantendo la consistenza dei dati anche in caso di connettività instabile.
+    \item \textbf{Feedback Immediato:} L'interfaccia notifica il successo tramite una \texttt{SnackBar} e apre automaticamente la scheda di dettaglio (\texttt{SpeciesDetailSheet}), gratificando l'utente.
+\end{itemize}
 
 \begin{listing}[H]
-  \begin{minted}[frame=single, breaklines]{dart}
+\begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
 void _checkDiscoveries(LatLng userLocation) {
-  // Calcolo distanza geodetica
-  final double meters = _distanceCalculator.as(
-      LengthUnit.Meter, userLocation, species.centerPoint);
+  final user = ref.read(currentUserProvider);
+  if (user == null) return;
 
-  // Verifica soglia di scoperta
-  if (meters <= species.discoveryRadius) {
-    _triggerDiscovery(user.uid, species);
+  final allSpecies = ref.read(speciesProvider).valueOrNull ?? [];
+
+  for (var species in allSpecies) {
+    if (species.isVisited) continue;
+
+    // Calcolo distanza geodetica in metri
+    final double meters = _distanceCalculator.as(
+        LengthUnit.Meter, userLocation, species.centerPoint);
+
+    // Verifica soglia di scoperta specifica per la specie
+    if (meters <= species.discoveryRadius) {
+      _triggerDiscovery(user.uid, species);
+    }
   }
 }
-  \end{minted}
-  \caption{Algoritmo di scoperta basato sulla distanza geodetica}
-  \label{lst:discovery}
+\end{minted}
+\caption{Algoritmo di scoperta basato sulla distanza geodetica}
+\label{lst:discovery}
 \end{listing}
 
 \subsubsection{Utente e Rango}
-Il modello utente (\texttt{UserModel}) calcola dinamicamente il livello e il rango (es. "Guardiano", "Leggenda") in base ai punti esperienza (XP) accumulati con le scoperte. Questo aggiornamento avviene in tempo reale, sbloccando nuovi badge visibili nella sezione profilo.
+Il modello utente (\texttt{UserModel}) incapsula la logica di progressione tramite l'estensione \texttt{UserStatsLogic}. Il livello viene calcolato dinamicamente dividendo gli XP totali per la soglia fissa di 1000 punti (\texttt{xpPerLevel}).
+In base al livello raggiunto, il sistema assegna un rango onorifico che evolve progressivamente: "Esploratore" ($<$ Lv. 5), "Naturalista" ($<$ Lv. 10), "Guardiano" ($<$ Lv. 20) fino a "Leggenda del Delta". Questo aggiornamento avviene in tempo reale grazie agli stream di Firestore, sbloccando nuovi badge visibili nella sezione statistiche (Figura \ref{fig:stats_page}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/app_img/statistics.png}
+    \caption{Pagina delle statistiche con progresso livello e riepilogo collezione.}
+    \label{fig:stats_page}
+\end{figure}
 
 \subsubsection{Segnalazioni}
-Gli utenti possono contribuire attivamente al monitoraggio ambientale tramite la funzione di segnalazione. Il widget \texttt{ReportDialog} permette di acquisire una fotografia, associare automaticamente le coordinate GPS attuali e inserire una descrizione dell'avvistamento. Questi dati vengono incapsulati in un oggetto \texttt{ReportModel} e inviati a Firestore per la validazione e la storicizzazione.
+Gli utenti contribuiscono attivamente al monitoraggio ambientale tramite la funzione di segnalazione. Il widget \texttt{ReportDialog} (Figura \ref{fig:report_dialog}) orchestra l'acquisizione dati integrando il pacchetto \texttt{image\_picker} per la fotografia e \texttt{geolocator} per associare le coordinate GPS esatte al momento dello scatto.
+
+I dati raccolti vengono incapsulati in un oggetto \texttt{ReportModel} e inviati al backend. Il completamento di questa operazione innesca una transazione che premia l'utente con 50 XP immediati, incentivando la partecipazione civica alla salvaguardia del territorio.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/app_img/reports.png}
+    \caption{Interfaccia per l'invio di una segnalazione geolocalizzata.}
+    \label{fig:report_dialog}
+\end{figure}
 
 \subsection{Integrazione Sensori}
 Per fornire un quadro dello stato ambientale del Parco, l'applicazione integra dati provenienti da stazioni di monitoraggio reali. Il servizio \texttt{SensorService} interroga l'API esterna ed effettua il parsing dei dati JSON ricevuti dalle stazioni (es. Bellocchio, Foce).
 
 \begin{listing}[H]
-  \begin{minted}[frame=single, breaklines]{dart}
+\begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
+// Parsing della risposta HTTP nel SensorService
 final response = await http.post(Uri.parse(_apiUrl), ...);
 
 if (response.statusCode == 200) {
   final decodedBody = jsonDecode(response.body);
-  // Estrazione e normalizzazione valore sensore
-  value = decodedBody['sensorValue'] ?? decodedBody['value'];
+  
+  // Normalizzazione valore sensore (gestione formati misti)
+  dynamic value;
+  if (decodedBody is Map) {
+    value = decodedBody['sensorValue'] ?? decodedBody['value'];
+  } else {
+    value = decodedBody;
+  }
+  
   return MapEntry(sensorName, value ?? "N/D");
 }
-  \end{minted}
-  \caption{Parsing dei dati JSON dai sensori IoT}
-  \label{lst:sensor_parsing}
+\end{minted}
+\caption{Parsing e normalizzazione dei dati JSON dai sensori IoT}
+\label{lst:sensor_parsing}
 \end{listing}
 
 Questi dati vengono presentati all'utente tramite popup informativi accessibili cliccando sulle icone delle stazioni sulla mappa, fornendo parametri aggiornati come temperatura, livello idrometrico e conduttività.
 
 \section{Interfaccia Utente}
-L'interfaccia è stata costruita rispettando le linee guida del Material Design 3. Le viste principali includono:
+L'interfaccia grafica è stata progettata rispettando le linee guida del \textbf{Material Design 3}, garantendo coerenza visiva e usabilità su diversi dispositivi. La gestione dei temi è centralizzata nella classe \texttt{AppColors}, che definisce palette cromatiche distinte per la modalità chiara e scura (gestite tramite il provider \texttt{themeModeProvider}), adattando automaticamente sfondi, testi e gradienti alle preferenze di sistema o dell'utente.
+
+L'accesso all'applicazione è gestito da una schermata di login (Figura \ref{fig:login_page}) che offre tre modalità di autenticazione distinte, orchestrate dall'\texttt{AuthService}: credenziali email/password standard, Google Sign-In per un accesso rapido e una modalità "Ospite" anonima per permettere l'esplorazione immediata delle funzionalità base senza registrazione.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/app_img/login.png}
+    \caption{Schermata di Login con opzioni di accesso multiplo.}
+    \label{fig:login_page}
+\end{figure}
+
+L'architettura della navigazione e delle viste principali si articola come segue:
 
 \begin{itemize}
-    \item \textbf{Home Dashboard}: Una panoramica che sovrappone alla mappa il meteo locale (tramite \texttt{WeatherService}) e i controlli di navigazione.
-    \item \textbf{Schede di Dettaglio}: Implementate tramite \texttt{DraggableScrollableSheet}, queste viste modali (es. \texttt{SpeciesDetailSheet}) forniscono informazioni educative e multimediali mantenendo visibile il contesto geografico sottostante.
-    \item \textbf{Profilo e Statistiche}: Una sezione dedicata alla visualizzazione delle specie collezionate e del rango raggiunto, con grafici di progresso.
+    \item \textbf{Home Dashboard:} La schermata principale è costruita utilizzando un widget \texttt{Stack}, che permette di sovrapporre elementi UI fluttuanti al layer cartografico di base. In alto, una barra di ricerca con auto-completamento permette di filtrare le specie, mentre widget dedicati mostrano il meteo locale (aggiornato tramite \texttt{WeatherService}). Pulsanti d'azione (FAB) permettono di centrare la visuale sull'utente, cambiare i layer della mappa o aprire il dialog delle segnalazioni.
+    
+    \item \textbf{Schede di Dettaglio:} Per la consultazione delle informazioni su fauna e flora, sono stati implementati widget basati su \texttt{DraggableScrollableSheet}. Questo componente permette all'utente di trascinare la scheda dal basso verso l'alto (coprendo dal 50\% al 95\% dello schermo) per rivelare descrizioni, curiosità e dati scientifici. L'esperienza è arricchita da animazioni \texttt{Hero} che collegano fluidamente l'icona del marker sulla mappa all'immagine di copertina della scheda.
+
+    \item \textbf{Profilo e Statistiche:} Questa sezione utilizza una \texttt{CustomScrollView} con \texttt{SliverAppBar} per creare un header collassabile che mostra il rango e il livello utente. Il corpo della pagina ospita una griglia dinamica (\texttt{GridView}) che visualizza la collezione delle specie: gli elementi scoperti appaiono a colori (con un bordo indicante la rarità), mentre quelli non ancora visitati sono mostrati in scala di grigi, incentivando il completamento della raccolta.
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/app_img/species_details.png}
+    \caption{Scheda di dettaglio implementata con DraggableScrollableSheet.}
+    \label{fig:species_detail}
+\end{figure}
+
 \section{Gestione dello Stato}
-La gestione globale dello stato è affidata al file \texttt{app\_providers.dart}, che definisce i provider Riverpod per l'intera applicazione. Questo approccio centralizzato permette di iniettare le dipendenze (come \texttt{DatabaseHelper} o \texttt{AuthService}) in qualsiasi widget senza passare parametri esplicitamente, garantendo che l'interfaccia reagisca istantaneamente ai cambiamenti dei dati sottostanti.
+La gestione globale dello stato è affidata al file \texttt{app\_providers.dart}, che definisce i provider \textbf{Riverpod} per l'intera applicazione. Questo approccio centralizzato permette di implementare una \textit{Dependency Injection} robusta: i servizi core come \texttt{DatabaseHelper} o \texttt{AuthService} vengono istanziati una sola volta e iniettati nei widget o in altri provider tramite il riferimento \texttt{ref}, migliorando la testabilità e la modularità del codice.
+
+Un aspetto cruciale dell'architettura è la capacità di creare "stati derivati". Un esempio significativo è rappresentato dal \texttt{speciesProvider}. Invece di esporre semplicemente la lista statica della fauna, questo provider combina in modo asincrono i dati grezzi delle specie con il profilo dell'utente corrente (recuperato tramite \texttt{userProfileProvider}). In questo modo, il flag \texttt{isVisited} di ogni entità viene calcolato dinamicamente prima ancora di raggiungere l'interfaccia utente.
+
+\begin{listing}[H]
+\begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
+// File: lib/providers/app_providers.dart
+
+final speciesProvider = FutureProvider<List<Species>>((ref) async {
+  // 1. Recupero asincrono della lista completa delle specie
+  final allSpecies = await ref.watch(_rawSpeciesProvider.future);
+
+  // 2. Ascolto reattivo del profilo utente
+  final userProfile = ref.watch(userProfileProvider).asData?.value;
+  final visitedIds = userProfile?.visitedSpeciesIds ?? [];
+
+  // 3. Incrocio dei dati per determinare lo stato di visita
+  for (var species in allSpecies) {
+    species.isVisited = visitedIds.contains(species.id);
+  }
+
+  return allSpecies;
+});
+\end{minted}
+\caption{Logica di stato derivato per la gestione delle specie visitate}
+\label{lst:species_provider}
+\end{listing}
+
+Grazie a questa struttura, l'interfaccia utente (implementata tramite \texttt{ConsumerWidget}) reagisce istantaneamente ai cambiamenti: se l'utente effettua una nuova scoperta, il \texttt{userProfileProvider} emette un nuovo stato, il \texttt{speciesProvider} ricalcola la lista e la mappa si aggiorna automaticamente mostrando il nuovo badge di avvenuta visita, senza necessità di callback manuali o controller complessi.
