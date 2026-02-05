@@ -316,9 +316,33 @@ I dati raccolti vengono incapsulati in un oggetto \texttt{ReportModel} e inviati
     \caption{Interfaccia per l'invio di una segnalazione geolocalizzata.}
     \label{fig:report_dialog}
 \end{figure}
-
+\clearpage
 \subsection{Integrazione Sensori}
-Per fornire un quadro dello stato ambientale del Parco, l'applicazione integra dati provenienti da stazioni di monitoraggio reali. Il servizio \texttt{SensorService} interroga l'API esterna ed effettua il parsing dei dati JSON ricevuti dalle stazioni (es. Bellocchio, Foce).
+Per fornire un quadro dettagliato dello stato ambientale del Parco, l'applicazione integra dati provenienti da stazioni di monitoraggio reali. 
+L'architettura prevede una configurazione statica delle stazioni, definita nel codice per mappare le posizioni geografiche e gli identificativi hardware dei 
+sensori collegati (Listing \ref{lst:sensor_config}).
+
+\begin{listing}[H]
+\begin{minted}[frame=single, framesep=2mm, baselinestretch=1.3, fontsize=\footnotesize, breaklines]{dart}
+// Configurazione della stazione "Sifone Casalino"
+SensorData(
+  id: 'station_casalino',
+  name: 'Sifone Casalino',
+  type: 'station',
+  location: const LatLng(44.551963, 12.138596),
+  // Mappatura ID sensore remoto -> Nome visualizzato
+  linkedSensors: {
+    '26355': 'Profondità Hydros-21 (mm)',
+    '26356': 'Temperatura Hydros-21 (°C)',
+    '26357': 'Conducibilità Hydros-21 (mS/cm)',
+  },
+),
+\end{minted}
+\caption{Modellazione di una stazione di monitoraggio e dei suoi sensori}
+\label{lst:sensor_config}
+\end{listing}
+
+Sfruttando questi identificativi univoci, il servizio \texttt{SensorService} interroga ciclicamente l'API esterna. Poiché le risposte del server possono variare nel formato a seconda del tipo di sensore, è stato implementato un sistema di parsing robusto che normalizza i dati in entrata prima di renderli disponibili alla UI (Listing \ref{lst:sensor_parsing}).
 
 \begin{listing}[H]
 \begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
@@ -331,20 +355,20 @@ if (response.statusCode == 200) {
   // Normalizzazione valore sensore (gestione formati misti)
   dynamic value;
   if (decodedBody is Map) {
+    // Estrazione prioritaria del campo 'sensorValue' o fallback su 'value'
     value = decodedBody['sensorValue'] ?? decodedBody['value'];
   } else {
-    value = decodedBody;
+    value = decodedBody; // Caso in cui l'API restituisce un raw value diretto
   }
   
   return MapEntry(sensorName, value ?? "N/D");
 }
 \end{minted}
-\caption{Parsing e normalizzazione dei dati JSON dai sensori IoT}
+\caption{Logica di estrazione e normalizzazione dei dati JSON}
 \label{lst:sensor_parsing}
 \end{listing}
 
-Questi dati vengono presentati all'utente tramite popup informativi accessibili cliccando sulle icone delle stazioni sulla mappa, fornendo parametri aggiornati come temperatura, livello idrometrico e conduttività.
-
+L'unione di questi due componenti permette di visualizzare popup informativi interattivi sulla mappa: cliccando sull'icona di una stazione, l'utente visualizza i parametri ambientali aggiornati in tempo reale, come temperatura dell'acqua, livello idrometrico e conduttività.
 \section{Interfaccia Utente}
 L'interfaccia grafica è stata progettata rispettando le linee guida del \textbf{Material Design 3}, garantendo coerenza visiva e usabilità su diversi dispositivi. La gestione dei temi è centralizzata nella classe \texttt{AppColors}, che definisce palette cromatiche distinte per la modalità chiara e scura (gestite tramite il provider \texttt{themeModeProvider}), adattando automaticamente sfondi, testi e gradienti alle preferenze di sistema o dell'utente.
 
