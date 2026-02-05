@@ -233,13 +233,9 @@ garantendo un'esperienza di navigazione fluida e intuitiva.
 Il cuore dell'esperienza utente è il sistema di scoperta ("Discovery"), progettato per incentivare l'esplorazione fisica del Parco. L'applicazione calcola costantemente la distanza geodetica tra la posizione dell'utente e quella delle specie target, sfruttando la precisione offerta dal pacchetto \texttt{latlong2}.
 
 \subsubsection{Logica di Scoperta}
-Il meccanismo di controllo avviene in background ogni qualvolta il GPS rileva un cambiamento di posizione. L'algoritmo (Codice \ref{lst:discovery}) itera sulle entità non ancora visitate e verifica se la distanza corrente è inferiore al parametro \texttt{discoveryRadius}, che varia dinamicamente in base alla tipologia di specie (es. 450m per la fauna, 800m per le aree verdi).
+Il meccanismo di controllo agisce in background ogni qualvolta il GPS rileva un aggiornamento della posizione. L'algoritmo (Codice \ref{lst:discovery}) scansiona le entità non ancora visitate, verificando se la distanza attuale rientri nel raggio di scoperta (\texttt{discoveryRadius}), parametro che si adatta dinamicamente alla tipologia di specie (es. 450m per la fauna, 800m per le aree verdi).
 
-Quando la condizione è soddisfatta, viene invocato il metodo di scoperta che esegue due azioni parallele:
-\begin{itemize}
-    \item \textbf{Persistenza Atomica:} Una transazione su Firestore registra l'ID della specie nel profilo utente e incrementa i punti esperienza, garantendo la consistenza dei dati anche in caso di connettività instabile.
-    \item \textbf{Feedback Immediato:} L'interfaccia notifica il successo tramite una \texttt{SnackBar} e apre automaticamente la scheda di dettaglio (\texttt{SpeciesDetailSheet}), gratificando l'utente.
-\end{itemize}
+Al soddisfacimento della condizione, il sistema innesca una doppia procedura: a livello di backend esegue una transazione atomica su Firestore per registrare l'ID della specie e i relativi punti esperienza, tutelando la consistenza del dato anche in caso di instabilità della rete; contestualmente, sul frontend, gratifica l'utente con un feedback visivo immediato tramite \texttt{SnackBar} e l'apertura automatica della scheda descrittiva (\texttt{SpeciesDetailSheet}).
 
 \begin{listing}[H]
 \begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
