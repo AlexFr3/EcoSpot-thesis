@@ -105,12 +105,24 @@ ibrida di rendering:
 
 \begin{itemize}
     \item \textbf{Gestione Layer e Filtri:} L'utente ha la possibilità di attivare o disattivare dinamicamente diverse categorie di marker (Fauna, Aree Verdi, Sensori, Punti di Interesse) tramite un dialog di configurazione. Questa logica è gestita tramite variabili di stato booleane (es. \texttt{\_showAnimals}, \texttt{\_showSensors}) che condizionano il rendering dei rispettivi \texttt{MarkerLayer} all'interno del metodo \texttt{build}.
-    
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.38\textwidth]{figures/app_img/layers.png}
+      \caption{Pannello per la gestione dei livelli e filtri della mappa.}
+      \label{fig:layers}
+    \end{figure}
+
     \item \textbf{Clustering dei Punti di Interesse (POI):} Per evitare il sovraffollamento visivo (cluttering) quando si visualizzano i numerosi Punti di 
     Interesse (configurati in \texttt{PoiConfig.points}) e per non compromettere le prestazioni di rendering, è stato implementato un sistema di clustering 
     tramite il pacchetto \textit{flutter\_map\_marker\_cluster}. Questa libreria raggruppa automaticamente i marker vicini in un unico indicatore 
     circolare contenente il numero di elementi nel cluster quando lo zoom della mappa è basso, che si espande (de-cluster) automaticamente 
     aumentando il livello di zoom.
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.40\textwidth]{figures/app_img/POI.png}
+      \caption{Mappa posizionata su un cluster di POI e uno visibile}
+      \label{fig:POI}
+    \end{figure}
 \end{itemize}
 
 Di seguito è riportata la configurazione del layer di clustering, che definisce il raggio di aggregazione e il builder personalizzato per l'indicatore numerico:
@@ -174,12 +186,6 @@ Inoltre, l'utente ha la possibilità di gestire la stratificazione dei contenuti
 (Figura \ref{fig:layers}). L'implementazione tecnica di questa funzionalità risiede nel metodo \texttt{\_openFilterDialog}, che istanzia un'interfaccia modale contenente una serie di interruttori (\texttt{SwitchListTile}).
 
 Oltre alla visualizzazione, i marker sono interattivi. Come mostrato nel Codice \ref{lst:map_markers}, l'utilizzo di \texttt{GestureDetector} permette di aprire schede di dettaglio modali (\texttt{showModalBottomSheet}) al tocco dell'utente.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.45\textwidth]{figures/app_img/layers.png}
-    \caption{Pannello per la gestione dei livelli e filtri della mappa.}
-    \label{fig:layers}
-\end{figure}
 
 Per le \textbf{Aree Verdi} come per le specie di animali, è stata implementata una logica che associa a ogni entità geografica un widget \texttt{Marker} 
 personalizzato.
