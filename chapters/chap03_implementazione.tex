@@ -227,7 +227,7 @@ garantendo un'esperienza di navigazione fluida e intuitiva.
 Il cuore dell'esperienza utente è il sistema di scoperta ("Discovery"), progettato per incentivare l'esplorazione fisica del Parco. L'applicazione calcola costantemente la distanza geodetica tra la posizione dell'utente e quella delle specie target, sfruttando la precisione offerta dal pacchetto \texttt{latlong2}.
 
 \subsubsection{Logica di Scoperta}
-Il meccanismo di controllo avviene in background ogni qualvolta il GPS rileva un cambiamento di posizione. L'algoritmo (Listing \ref{lst:discovery}) itera sulle entità non ancora visitate e verifica se la distanza corrente è inferiore al parametro \texttt{discoveryRadius}, che varia dinamicamente in base alla tipologia di specie (es. 450m per la fauna, 800m per le aree verdi).
+Il meccanismo di controllo avviene in background ogni qualvolta il GPS rileva un cambiamento di posizione. L'algoritmo (Codice \ref{lst:discovery}) itera sulle entità non ancora visitate e verifica se la distanza corrente è inferiore al parametro \texttt{discoveryRadius}, che varia dinamicamente in base alla tipologia di specie (es. 450m per la fauna, 800m per le aree verdi).
 
 Quando la condizione è soddisfatta, viene invocato il metodo di scoperta che esegue due azioni parallele:
 \begin{itemize}
@@ -263,11 +263,44 @@ void _checkDiscoveries(LatLng userLocation) {
 
 \subsubsection{Utente e Rango}
 Il modello utente (\texttt{UserModel}) incapsula la logica di progressione tramite l'estensione \texttt{UserStatsLogic}. Il livello viene calcolato dinamicamente dividendo gli XP totali per la soglia fissa di 1000 punti (\texttt{xpPerLevel}).
+
 In base al livello raggiunto, il sistema assegna un rango onorifico che evolve progressivamente: "Esploratore" ($<$ Lv. 5), "Naturalista" ($<$ Lv. 10), "Guardiano" ($<$ Lv. 20) fino a "Leggenda del Delta". Questo aggiornamento avviene in tempo reale grazie agli stream di Firestore, sbloccando nuovi badge visibili nella sezione statistiche (Figura \ref{fig:stats_page}).
+
+\begin{listing}[H]
+\begin{minted}[frame=single, framesep=2mm, baselinestretch=1.0, fontsize=\footnotesize, breaklines]{dart}
+extension UserStatsLogic on UserModel {
+  // Calcolo Rank basato sul livello
+  String get rank {
+    if (level < 5) return 'Esploratore';
+    if (level < 10) return 'Naturalista';
+    if (level < 20) return 'Guardiano';
+    return 'Leggenda del Delta';
+  }
+  
+  int get speciesDiscovered => visitedSpeciesIds.length;
+  
+  // XP necessari per completare il livello precedente
+  int get xpForNextLevel => level * UserModel.xpPerLevel;
+  
+  // Calcolo degli XP parziali nel livello corrente
+  int get currentLevelXP {
+    final xpOfPreviousLevels = (level - 1) * UserModel.xpPerLevel;
+    return totalXp - xpOfPreviousLevels;
+  }
+
+  double get progressToNextLevel {
+    if (xpForNextLevel == 0) return 0;
+    return (currentLevelXP / UserModel.xpPerLevel).clamp(0.0, 1.0);
+  }
+}
+\end{minted}
+\caption{Logica di estensione per il calcolo del rango e del livello}
+\label{lst:statsLogic}
+\end{listing}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.45\textwidth]{figures/app_img/statistics.png}
+    \includegraphics[width=0.40\textwidth]{figures/app_img/statistics.png}
     \caption{Pagina delle statistiche con progresso livello e riepilogo collezione.}
     \label{fig:stats_page}
 \end{figure}
