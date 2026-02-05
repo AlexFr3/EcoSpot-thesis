@@ -4,39 +4,7 @@
 
 Questo capitolo presenta l'analisi degli obiettivi e la progettazione del sistema EcoSpot, descrivendo l'architettura logica e le scelte tecnologiche adottate per lo sviluppo dell'applicazione mobile e la sua integrazione con i servizi cloud e IoT.
 
-\section{Analisi dei Requisiti}
-\label{sec:requirements}
 
-La fase di progettazione è stata preceduta da un'analisi dettagliata dei requisiti, volta a definire il perimetro funzionale e le caratteristiche qualitative del sistema EcoSpot.
-
-\subsection{Requisiti Funzionali}
-I requisiti funzionali descrivono le interazioni specifiche tra l'utente e il sistema e definiscono le necessità informative della base di dati. Sulla base degli obiettivi di progetto, sono stati definiti i seguenti casi d'uso:
-
-\begin{itemize}
-    \item \textbf{Esplorazione Geografica:} Il sistema deve fornire una mappa interattiva del Delta del Po che visualizzi in tempo reale la posizione GPS dell'utente, le aree di interesse naturalistico (flora e fauna) e le stazioni di monitoraggio ambientale. 
-    Il database deve mantenere un profilo utente persistente e sincronizzato che memorizzi in tempo reale lo stato di avanzamento, inclusi il livello raggiunto, 
-    il rango, i punti esperienza accumulati e l'inventario delle specie già scoperte. Data l'elevata densità di elementi informativi visualizzati 
-    contemporaneamente, il sistema deve integrare strumenti di ricerca testuale e filtri categoriali per permettere all'utente di gestire la complessità 
-    visiva e isolare i dati di interesse
-
-    \item \textbf{Rilevamento di Prossimità:} Per supportare la meccanica del "Turismo Lento", il sistema calcola costantemente la distanza tra l'utente e i 
-    punti di interesse (POI) o gli habitat. Al raggiungimento di una soglia di tolleranza specifica, definita come raggio di scoperta (variabile tra 450 metri per la fauna e 800 metri per la flora), l'applicazione sblocca il contenuto informativo e assegna una ricompensa in XP. 
-    
-    \item \textbf{Consultazione Dati Ambientali:} Il sistema deve ingerire dati provenienti da fonti esterne eterogenee, come stazioni IoT dislocate sul territorio. Il modello deve prevedere strutture flessibili per normalizzare letture di temperatura, livello idrometrico e conducibilità, rendendole consultabili in tempo quasi reale tramite la mappa.
-
-    \item \textbf{Segnalazione (Citizen Science):} Gli utenti autenticati possono inviare segnalazioni georeferenziate composte da descrizione testuale, posizione GPS (\texttt{GeoPoint}) e timestamp. Le prove fotografiche vengono archiviate su \textit{Cloud Storage}, mantenendo nel database un riferimento univoco all'URL dell'immagine.
-
-    \item \textbf{Integrità della Progressione:} Per incentivare l'uso continuativo e garantire la coerenza dei progressi personali, ogni scoperta deve essere registrata attraverso transazioni atomiche. Questo meccanismo impedisce la duplicazione dei punti esperienza (XP) e assicura che l'aggiornamento del livello e l'inserimento nell'inventario avvengano come un'unica operazione indivisibile.
-\end{itemize}
-
-\subsection{Requisiti Non Funzionali}
-Definiscono gli attributi di qualità necessari per garantire un'esperienza utente soddisfacente in un contesto outdoor:
-
-\begin{itemize}
-    \item \textbf{Usabilità e Contrasto:} L'interfaccia deve essere leggibile sotto luce solare diretta e supportare il passaggio dinamico tra tema chiaro e scuro.
-    \item \textbf{Performance e Offline:} Il rendering della mappa deve essere fluido. Il sistema deve permettere la consultazione dei dati anche in zone prive di copertura tramite caching locale.
-    \item \textbf{Efficienza Energetica:} L'uso del GPS deve essere ottimizzato per ridurre l'impatto sulla batteria durante le escursioni prolungate.
-\end{itemize}
 \section{Obiettivi del progetto}
 \label{sec:project_goals}
 
@@ -54,6 +22,80 @@ La progettazione di EcoSpot è guidata da quattro obiettivi strategici, volti a 
 
 L'integrazione di questi quattro pilastri mira ad aumentare l'attenzione dei visitatori, offrendo un'esperienza che combina contenuti informativi, esplorazione fisica e feedback immediati sulle pratiche sostenibili. Al tempo stesso, la possibilità di accedere a dati ambientali in tempo quasi reale e di collegarli alle osservazioni sul campo contribuisce a sviluppare una maggiore consapevolezza ecologica, mostrando in modo concreto la fragilità e il valore degli ecosistemi lagunari. In questo senso, EcoSpot si configura non solo come strumento di guida turistica, ma come piattaforma di educazione ambientale e di supporto alla gestione sostenibile delle aree protette del Delta del Po.
 
+\section{Analisi dei Requisiti}
+\label{sec:requirements}
+
+La fase di progettazione è stata preceduta da un'analisi dettagliata dei requisiti, volta a definire il perimetro funzionale e le caratteristiche qualitative del sistema EcoSpot.
+
+\subsection{Requisiti Funzionali}
+I requisiti funzionali descrivono le interazioni specifiche tra l'utente e il sistema e definiscono le necessità informative della base di dati. Sulla base degli obiettivi di progetto e dei casi d'uso identificati, sono stati definiti i seguenti requisiti:
+
+\begin{enumerate}
+    \item \textbf{Mappa Interattiva} \label{req:mappa}
+    Il sistema deve fornire una mappa digitale del Delta del Po che visualizzi i layer informativi relativi alle aree di interesse naturalistico (flora e fauna) e alle stazioni di monitoraggio ambientale. La mappa deve supportare l'interazione touch (pan e zoom) e adattare la densità delle informazioni in base al livello di zoom.
+
+    \item \textbf{Posizione in Tempo Reale} \label{req:tracking}
+    L'applicazione deve acquisire e monitorare costantemente la posizione geografica dell'utente tramite GPS. Il tracciamento deve avvenire in background (ove permesso) o in foreground per garantire che la posizione sulla mappa sia sempre sincronizzata con lo spostamento fisico dell'utente.
+    
+    \item \textbf{Rilevamento di Prossimità} \label{req:geofencing}
+    Per supportare la meccanica del "Turismo Lento", il sistema deve calcolare in tempo reale la distanza euclidea tra le 
+    coordinate dell'utente e gli habitat o le aree verdi. Al raggiungimento di una soglia di tolleranza 
+    specifica (definita come \textit{raggio di scoperta}, variabile tra 450 metri per la fauna e 800 metri per la flora), 
+    il sistema deve innescare l'evento di "scoperta".
+    
+    \item \textbf{Profilo Utente} \label{req:profilo}
+    Il database deve mantenere un profilo utente persistente e sincronizzato su cloud per gli utenti registrati, 
+    memorizzando dati anagrafici e preferenze. Il sistema deve altresì supportare una modalità "Ospite" con persistenza 
+    locale temporanea.
+    
+    \item \textbf{Sistema di Gamification} \label{req:gamification}
+    Il sistema deve gestire la logica di progressione dell'utente. Ogni evento di scoperta deve assegnare una ricompensa in Punti Esperienza (XP), aggiornare l'inventario delle specie collezionate (sbloccando le relative schede informative) e ricalcolare il rango e il livello utente in base alle soglie predefinite.
+
+    \item \textbf{Ricerca} \label{req:ricerca}
+    Data l'elevata densità di elementi sulla mappa, il sistema deve fornire una barra di ricerca testuale per le specie e le aree verdi. 
+    Questi strumenti devono permettere all'utente di ridurre la complessità visiva e isolare rapidamente i dati di interesse.
+
+    \item \textbf{Dati Ambientali} \label{req:iot}
+    Il sistema deve ingerire e visualizzare dati provenienti da fonti esterne eterogenee (stazioni \ac{IoT}). Il modello dati deve prevedere strutture flessibili per normalizzare letture di temperatura, livello idrometrico e conducibilità, rendendole consultabili in tempo quasi reale attraverso i marker sulla mappa.
+
+    \item \textbf{Segnalazione} \label{req:segnalazioni}
+    Gli utenti autenticati devono poter inviare segnalazioni georeferenziate. Ogni record deve comprendere una descrizione 
+    testuale, la posizione GPS esatta (\texttt{GeoPoint}) e il timestamp di creazione. Le prove fotografiche devono essere 
+    caricate su uno storage remoto (\textit{Cloud Storage}).
+
+    \item \textbf{Progressione} \label{req:integrita}
+    Per incentivare l'uso continuativo e garantire la coerenza dei dati, ogni modifica allo stato del giocatore (scoperta, level-up) deve essere gestita tramite transazioni atomiche. Questo impedisce condizioni di gara (race conditions) e duplicazioni di XP, assicurando che l'aggiornamento del livello e dell'inventario avvengano come un'operazione indivisibile.
+
+    \item \textbf{Funzionamento Offline e Sincronizzazione} \label{req:offline}
+    Considerata la potenziale assenza di copertura di rete in alcune aree del parco, il sistema deve garantire la fruibilità dei contenuti statici (schede informative) e della mappa (tramite caching) anche in modalità offline. Le azioni critiche dell'utente, come lo sblocco di una specie o l'invio di una segnalazione, devono essere memorizzate localmente in una coda di persistenza e sincronizzate automaticamente con il server remoto non appena la connettività viene ripristinata.
+
+    \item \textbf{Compatibilità Multi-Piattaforma} \label{req:multipiattaforma}
+    Il sistema deve essere sviluppato garantendo la piena compatibilità funzionale e visiva sia con il sistema operativo 
+    Android che con iOS. L'interfaccia utente deve adattarsi alle linee guida specifiche delle piattaforme pur mantenendo un 
+    design system coerente (Material Design 3) \ref{material_design_3}.
+\end{enumerate}
+\subsection{Requisiti Non Funzionali}
+I requisiti non funzionali definiscono gli attributi di qualità del sistema, imponendo vincoli architetturali e prestazionali necessari per garantire un'esperienza utente soddisfacente, specialmente in un contesto di utilizzo in mobilità e all'aperto (\textit{outdoor}).
+
+\begin{enumerate}
+    \item \textbf{Usabilità e Accessibilità} \label{rnf:usabilita}
+    L'interfaccia utente deve garantire la massima leggibilità anche in condizioni di forte illuminazione solare diretta, tipica delle escursioni diurne. Il sistema deve supportare il passaggio dinamico (o automatico) tra tema chiaro e scuro per mantenere un contrasto ottimale. Gli elementi interattivi (bottoni, card) devono rispettare le dimensioni minime di tocco (48x48dp) per facilitare l'uso in movimento.
+
+    \item \textbf{Prestazioni e Reattività} \label{rnf:performance}
+    Il rendering della mappa e delle animazioni di transizione deve mantenere un frame rate stabile di almeno 60 fps (fotogrammi al secondo) per evitare scatti (\textit{jank}) che comprometterebbero l'esperienza utente. Il tempo di avvio dell'applicazione (Cold Start) non deve superare i 2 secondi su dispositivi di fascia media.
+
+    \item \textbf{Efficienza Energetica} \label{rnf:energia}
+    Dato l'uso prolungato durante le escursioni e l'assenza di punti di ricarica nelle aree naturali, il consumo della batteria deve essere minimizzato. Il servizio di localizzazione deve adottare strategie di campionamento adattivo (es. riducendo la frequenza di aggiornamento GPS quando l'utente è fermo) per non drenare eccessivamente le risorse del dispositivo.
+
+    \item \textbf{Manutenibilità del Codice} \label{rnf:manutenibilita}
+    Il codice sorgente deve seguire i principi della \textit{Clean Architecture}, garantendo una netta separazione tra logica di business, interfaccia utente e gestione dei dati. L'adozione di standard di formattazione coerenti e la documentazione del codice devono facilitare le operazioni di debug e l'aggiornamento futuro del software da parte di altri sviluppatori.
+
+    \item \textbf{Estensibilità e Scalabilità} \label{rnf:estensibilita}
+    L'architettura del sistema deve essere progettata per accogliere future evoluzioni senza richiedere la riscrittura dei moduli principali. Deve essere possibile aggiungere nuove categorie di specie, nuovi layer cartografici o funzionalità di gamification aggiuntive (es. classifiche globali) attraverso l'estensione delle classi esistenti o l'integrazione di nuovi plugin.
+
+    \item \textbf{Privacy e Sicurezza dei Dati} \label{rnf:privacy}
+    Trattando dati sensibili relativi alla posizione geografica degli utenti, il sistema deve garantire la conformità con le normative vigenti (GDPR). I dati di localizzazione non devono essere condivisi con terze parti non autorizzate e, dove possibile, devono essere anonimizzati per le analisi statistiche aggregate.
+\end{enumerate}
 \section{Tecnologie}
 \label{sec:technologies}
 
