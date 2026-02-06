@@ -72,17 +72,20 @@ I requisiti funzionali descrivono le interazioni specifiche tra l'utente e il si
     \item \textbf{Compatibilità Multi-Piattaforma} \label{req:multipiattaforma}
     Il sistema deve essere sviluppato garantendo la piena compatibilità funzionale e visiva sia con il sistema operativo 
     Android che con iOS. L'interfaccia utente deve adattarsi alle linee guida specifiche delle piattaforme pur mantenendo un 
-    design system coerente (Material Design 3) \ref{material_design_3}.
+    design system coerente (Material Design 3) \cite{material_design_3}.
 \end{enumerate}
 \subsection{Requisiti Non Funzionali}
-I requisiti non funzionali definiscono gli attributi di qualità del sistema, imponendo vincoli architetturali e prestazionali necessari per garantire un'esperienza utente soddisfacente, specialmente in un contesto di utilizzo in mobilità e all'aperto (\textit{outdoor}).
+I requisiti non funzionali definiscono gli attributi di qualità del sistema, imponendo vincoli architetturali e prestazionali 
+necessari per garantire un'esperienza utente soddisfacente, specialmente in un contesto di utilizzo in mobilità e all'aperto.
 
 \begin{enumerate}
     \item \textbf{Usabilità e Accessibilità} \label{rnf:usabilita}
-    L'interfaccia utente deve garantire la massima leggibilità anche in condizioni di forte illuminazione solare diretta, tipica delle escursioni diurne. Il sistema deve supportare il passaggio dinamico (o automatico) tra tema chiaro e scuro per mantenere un contrasto ottimale. Gli elementi interattivi (bottoni, card) devono rispettare le dimensioni minime di tocco (48x48dp) per facilitare l'uso in movimento.
+    L'interfaccia utente deve garantire la massima leggibilità anche in condizioni di forte illuminazione solare diretta, 
+    tipica delle escursioni diurne. Il sistema deve supportare il passaggio dinamico (o automatico) tra tema chiaro e scuro 
+    per mantenere un contrasto ottimale.
 
     \item \textbf{Prestazioni e Reattività} \label{rnf:performance}
-    Il rendering della mappa e delle animazioni di transizione deve mantenere un frame rate stabile di almeno 60 fps (fotogrammi al secondo) per evitare scatti (\textit{jank}) che comprometterebbero l'esperienza utente. Il tempo di avvio dell'applicazione (Cold Start) non deve superare i 2 secondi su dispositivi di fascia media.
+    Il rendering della mappa e delle animazioni di transizione deve mantenere un frame rate stabile per evitare scatti (\textit{jank}) che comprometterebbero l'esperienza utente. Il tempo di avvio dell'applicazione (Cold Start) non deve superare i 2 secondi su dispositivi di fascia media.
 
     \item \textbf{Efficienza Energetica} \label{rnf:energia}
     Dato l'uso prolungato durante le escursioni e l'assenza di punti di ricarica nelle aree naturali, il consumo della batteria deve essere minimizzato. Il servizio di localizzazione deve adottare strategie di campionamento adattivo (es. riducendo la frequenza di aggiornamento GPS quando l'utente è fermo) per non drenare eccessivamente le risorse del dispositivo.
@@ -93,8 +96,6 @@ I requisiti non funzionali definiscono gli attributi di qualità del sistema, im
     \item \textbf{Estensibilità e Scalabilità} \label{rnf:estensibilita}
     L'architettura del sistema deve essere progettata per accogliere future evoluzioni senza richiedere la riscrittura dei moduli principali. Deve essere possibile aggiungere nuove categorie di specie, nuovi layer cartografici o funzionalità di gamification aggiuntive (es. classifiche globali) attraverso l'estensione delle classi esistenti o l'integrazione di nuovi plugin.
 
-    \item \textbf{Privacy e Sicurezza dei Dati} \label{rnf:privacy}
-    Trattando dati sensibili relativi alla posizione geografica degli utenti, il sistema deve garantire la conformità con le normative vigenti (GDPR). I dati di localizzazione non devono essere condivisi con terze parti non autorizzate e, dove possibile, devono essere anonimizzati per le analisi statistiche aggregate.
 \end{enumerate}
 \section{Tecnologie}
 \label{sec:technologies}
