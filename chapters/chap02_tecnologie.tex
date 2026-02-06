@@ -101,35 +101,27 @@ necessari per garantire un'esperienza utente soddisfacente, specialmente in un c
 \label{sec:technologies}
 
 \subsection{Flutter e Dart}
-Per lo sviluppo dell'applicazione EcoSpot è stato selezionato \textbf{Flutter} \cite{flutter}, il framework open-source 
-sviluppato da Google che consente la realizzazione di applicazioni multipiattaforma native.
-Questa scelta architetturale è stata motivata da diversi fattori strategici che rispondono agli obiettivi del progetto:
+L'applicazione EcoSpot è sviluppata con \textbf{Flutter} \cite{flutter}, il framework open-source di Google che consente la realizzazione di applicazioni multipiattaforma native.
+L'adozione di questa architettura risponde agli obiettivi del progetto garantendo:
 
 \begin{itemize}
-    \item \textbf{Efficienza nello sviluppo (Single Codebase):} Flutter permette di gestire un'unica base di codice per 
-    Android e iOS. Questo ha ridotto drasticamente i tempi di implementazione, garantendo al contempo una parità di 
-    funzionalità tra le piattaforme senza la necessità di mantenere due team di sviluppo distinti (Requisito \ref{req:multipiattaforma}).
+    \item \textbf{Efficienza nello sviluppo (Single Codebase):} Flutter permette di gestire un'unica base di codice per Android e iOS. Questo approccio riduce i tempi di implementazione e assicura una parità di funzionalità tra le piattaforme (Requisito \ref{req:multipiattaforma}).
 
-    \item \textbf{Prestazioni grafiche (Impeller):} A differenza di altri framework ibridi, Flutter non utilizza webview ma 
-    un motore di rendering proprietario. Per EcoSpot è stato sfruttato il moderno motore \textbf{Impeller}, che sostituisce 
-    il precedente Skia. Impeller risolve i problemi di \textit{jank} (scatti) dovuti alla compilazione degli shader a 
-    runtime, pre-compilandoli e sfruttando le API di basso livello (Metal su iOS e Vulkan su Android). 
-    Ciò garantisce animazioni fluide a 60 FPS, fondamentali per la gestione delle mappe interattive e delle transizioni 
-    nelle schede delle specie (Requisito\ref{rnf:performance}).
+    \item \textbf{Prestazioni grafiche (Impeller):} Il sistema sfrutta il motore di rendering \textbf{Impeller}, che sostituisce il precedente Skia. Impeller risolve i problemi di \textit{jank} (scatti) pre-compilando gli shader e sfruttando le API di basso livello (Metal su iOS e Vulkan su Android). Ciò garantisce animazioni fluide a 60 FPS, fondamentali per la gestione delle mappe interattive (Requisito \ref{rnf:performance}).
 
-    \item \textbf{Produttività (Hot Reload):} La funzionalità di \textit{Stateful Hot Reload} ha permesso di visualizzare le modifiche al codice in tempo reale senza riavviare l'applicazione, accelerando il ciclo di test e il raffinamento dell'interfaccia utente (UI).
+    \item \textbf{Produttività (Hot Reload):} La funzionalità di \textit{Stateful Hot Reload} consente l'iniezione delle modifiche al codice in tempo reale, ottimizzando il ciclo di raffinamento dell'interfaccia utente (UI).
 
-    \item \textbf{Ecosistema e Modularità:} La disponibilità di pacchetti maturi su \texttt{pub.dev} ha facilitato l'integrazione di funzionalità complesse. Librerie come \texttt{flutter\_map} per la cartografia, \texttt{geolocator} per il tracciamento GPS e \texttt{riverpod} per la gestione dello stato si sono rivelate essenziali per l'architettura del sistema.
+    \item \textbf{Ecosistema e Modularità:} L'architettura integra pacchetti maturi come \texttt{flutter\_map} per la cartografia, \texttt{geolocator} per il tracciamento GPS e \texttt{riverpod} per la gestione dello stato.
 \end{itemize}
 
-Il linguaggio alla base del framework è \textbf{Dart}, scelto per la sua duplice natura: ottimizzato per la UI e fortemente orientato alla programmazione asincrona.
-In particolare, il supporto nativo per \texttt{Future} e \texttt{Stream} (Requisito \ref{req:tracking}) si è rivelato cruciale per gestire i flussi di dati in tempo reale di EcoSpot, come l'aggiornamento della posizione dell'utente e il recupero dei dati dai sensori IoT, senza mai bloccare il thread principale dell'interfaccia.
+Il linguaggio alla base del framework è \textbf{Dart}, caratterizzato da una duplice natura: ottimizzato per la UI e fortemente orientato alla programmazione asincrona.
+In particolare, il supporto nativo per \texttt{Future} e \texttt{Stream} (Requisito \ref{req:tracking}) \textbf{semplifica notevolmente} la gestione dei flussi di dati in tempo reale di EcoSpot, come l'aggiornamento della posizione dell'utente e il recupero dei dati dai sensori IoT, permettendo l'esecuzione di task complessi senza bloccare il thread principale dell'interfaccia.
 
-Nel contesto del progetto, l'adozione di Flutter e Dart garantisce una soluzione scalabile e versatile, capace di sostenere i requisiti funzionali di gamification e citizen science offrendo un'esperienza utente di livello nativo.
-
+Nel contesto del progetto, l'utilizzo di Flutter e Dart offre una soluzione scalabile, capace di sostenere i requisiti di gamification e citizen science con un'esperienza utente di livello nativo.
 \subsection{Backend, Servizi Cloud e API}
-L'infrastruttura di backend costituisce il cuore della gestione dei dati e della persistenza delle informazioni, garantendo sincronizzazione in tempo reale, sicurezza e disponibilità del servizio. La scelta tecnologica è stata guidata da criteri di scalabilità, ridotta manutenzione infrastrutturale (approccio \textit{Serverless}) e facilità di integrazione con l'ecosistema mobile.
-
+L'infrastruttura di backend gestisce i dati e la persistenza delle informazioni, garantendo sincronizzazione in tempo reale, 
+sicurezza e disponibilità del servizio. Le tecnologie adottate rispondono a criteri di scalabilità, ridotta manutenzione 
+infrastrutturale (approccio \textit{Serverless}) e facilità di integrazione con l'ecosistema mobile.
 Le principali componenti progettuali includono:
 
 \begin{itemize}
@@ -159,38 +151,20 @@ Le principali componenti progettuali includono:
 Questa architettura modulare consente di mantenere separati i livelli di presentazione (Widget Flutter), gestione dello stato (Riverpod) e servizi dati (Firebase/API), favorendo la manutenibilità del codice e la possibilità di estendere le funzionalità senza impattare sulla stabilità del sistema esistente.
 
 \subsection{Riverpod}
+Per garantire la scalabilità e la manutenibilità di un ecosistema complesso come \textbf{EcoSpot}, l'architettura software si fonda su \textbf{Riverpod}, un framework di \textit{Reactive Caching} e \textit{Dependency Injection}. Questo strumento non si limita alla semplice gestione dello stato, ma agisce come il sistema nervoso dell'applicazione, orchestrando in modo dichiarativo e sicuro il flusso di dati eterogenei dai servizi Firebase alle API REST, fino ai sensori GPS che convergono nell'applicazione.
 
-Per garantire la scalabilità e la manutenibilità di un ecosistema complesso come \textbf{EcoSpot}, l'architettura software si fonda su \textbf{Riverpod}, un framework di 
-\textit{Reactive Caching} e \textit{Dependency Injection}. A differenza di approcci tradizionali, Riverpod è stato selezionato non solo per la gestione dello stato, 
-ma per orchestrare in modo dichiarativo e sicuro il flusso di dati eterogenei (Firebase, API REST, sensori GPS) che convergono nell'applicazione.
+L'adozione di Riverpod ha permesso in primo luogo di disaccoppiare nettamente l'interfaccia utente dalla logica di business: i widget, come la mappa interattiva (\texttt{MapWidget}) o le schede di dettaglio, non contengono logica imperativa di recupero dati, ma si limitano a ``osservare'' passivamente lo stato fornito dai provider tramite il metodo \texttt{ref.watch}. Questa separazione delle responsabilità rende il codice modulare, facilitando notevolmente le operazioni di testing e la manutenzione evolutiva del software.
 
-L'adozione di Riverpod ha apportato vantaggi progettuali cruciali:
+Un vantaggio cruciale dell'architettura risiede nella gestione unificata dell'asincronicità. Il progetto deve armonizzare sorgenti dati con nature temporali opposte, gestendo simultaneamente flussi in tempo reale, come la posizione GPS o lo stato di autenticazione, e chiamate asincrone puntuali, come il recupero dei dati meteo o dei sensori IoT. Riverpod astrae questa complessità gestendo automaticamente gli stati di caricamento, errore e successo, garantendo che l'interfaccia utente non si blocchi mai e possa reagire istantaneamente ai cambiamenti, come l'aggiornamento automatico della mappa al variare della posizione dell'utente.
 
-\begin{description}
-    \item[1. Separazione delle Responsabilità] \hfill \\
-    L'architettura disaccoppia nettamente l'interfaccia utente (UI) dalla logica di business. I widget, come la mappa interattiva (\texttt{MapWidget}) o le schede di dettaglio, non contengono logica di recupero dati; si limitano a ``osservare'' (tramite \texttt{ref.watch}) lo stato fornito dai provider. Questo rende il codice modulare, facilitando il testing e la manutenzione futura.
-
-    \item[2. Gestione Unificata dell'Asincronicità] \hfill \\
-    Il progetto deve gestire sorgenti dati con nature temporali opposte: flussi in tempo reale (posizione GPS, stato di autenticazione) e chiamate asincrone puntuali 
-    (dati meteo, API sensori). Riverpod astrae questa complessità, che gestisce automaticamente gli stati di caricamento, errore e successo. 
-    Ciò garantisce che l'UI non si blocchi mai e possa reagire istantaneamente ai cambiamenti, come l'aggiornamento automatico della mappa al variare della posizione utente.
-
-    \item[3. Dependency Injection Dichiarativa] \hfill \\
-    Uno dei punti di forza implementati è la capacità dei provider di dipendere l'uno dall'altro. Un esempio chiave nel progetto è lo \texttt{speciesProvider}: esso combina i dati 
-    statici delle specie con il profilo dinamico dell'utente. Quando l'utente effettua una nuova scoperta, il provider ricalcola automaticamente quali 
-    specie segnare come ``visitate'', propagando l'aggiornamento a tutta l'app senza codice imperativo o callback complessi.
-
-    \item[4. Sicurezza ``Compile-safe''] \hfill \\
-    A differenza di altre soluzioni, Riverpod elimina a tempo di compilazione errori comuni come il \texttt{ProviderNotFoundException}, garantendo che ogni componente abbia sempre accesso alle dipendenze necessarie (come \texttt{AuthService} o \texttt{DatabaseHelper}) in modo sicuro e tipizzato.
-\end{description}
-
-In sintesi, Riverpod agisce come il sistema nervoso dell'applicazione, trasformando eventi discreti e stream di dati in uno stato coerente e reattivo che guida l'esperienza utente.
-
+Tale reattività è potenziata da un meccanismo di \textit{Dependency Injection} dichiarativa, che consente ai provider di dipendere l'uno dall'altro per generare stati derivati. Un esempio chiave nel progetto è rappresentato dallo \texttt{speciesProvider}: esso combina i dati statici delle specie con il profilo dinamico dell'utente, ricalcolando automaticamente quali specie segnare come ``visitate'' ogni volta che avviene una nuova scoperta. Questo approccio propaga l'aggiornamento a tutta l'applicazione senza la necessità di callback complessi o gestione manuale degli stati.
+Infine, a differenza di altre soluzioni, Riverpod garantisce una sicurezza ``Compile-safe'', eliminando a tempo di compilazione errori comuni come il \texttt{ProviderNotFoundException} e assicurando che ogni componente abbia sempre accesso alle dipendenze necessarie, come \texttt{AuthService} o \texttt{DatabaseHelper}, in modo tipizzato e robusto.
 \subsection{Integrazione di Servizi e Fonti Dati}
 Per raggiungere gli obiettivi di sensibilizzazione ambientale e gamification, EcoSpot non opera come un sistema isolato, ma agisce come collettore di dati provenienti da fonti eterogenee. L'architettura è stata progettata per integrare servizi di terze parti che arricchiscono l'esperienza utente con informazioni contestuali in tempo reale.
 \begin{itemize}
     \item \textbf{Monitoraggio Ambientale e Consapevolezza}: l'integrazione con le reti di sensori IoT risponde all'esigenza educativa di rendere visibili parametri ecologici (come livello idrometrico e salinità) altrimenti invisibili al turista. La scelta di utilizzare dati reali serve a creare un collegamento diretto tra le condizioni chimico-fisiche dell'habitat e la biodiversità osservata, trasformando l'applicazione in uno strumento di divulgazione scientifica attiva.
-    \item \textbf{Geolocalizzazione e Cartografia Open Source}: per la componente cartografica è stata scelta la piattaforma \textbf{OpenStreetMap}. Questa soluzione garantisce la flessibilità necessaria per rappresentare sentieri e aree naturali spesso assenti nelle mappe commerciali. L'approccio \textit{Location-Based} vincola l'accesso ai contenuti alla posizione fisica dell'utente, disincentivando la fruizione passiva e promuovendo l'esplorazione diretta del territorio.
+    \item \textbf{Geolocalizzazione e Cartografia Open Source}: la componente cartografica si basa sulla piattaforma 
+    \textbf{OpenStreetMap}. Questa soluzione garantisce la flessibilità necessaria per rappresentare sentieri e aree naturali spesso assenti nelle mappe commerciali.
     \item \textbf{Contestualizzazione Meteorologica}: le condizioni atmosferiche influenzano l'etologia delle specie e la fruibilità del parco. Il sistema integra servizi meteorologici esterni (come \textbf{Open-Meteo}) per fornire all'utente un quadro immediato delle condizioni ambientali. Questo dato non è puramente informativo, ma arricchisce le segnalazioni di \textit{Citizen Science}, permettendo di correlare gli avvistamenti faunistici con le variabili climatiche del momento.
 \end{itemize}
 
@@ -234,9 +208,10 @@ dell'ecosistema lagunare al momento della visita (Requisito \ref{req:iot}).
 La progettazione dell'interfaccia utente (UI) di EcoSpot risponde a precise esigenze ergonomiche e comunicative legate al contesto outdoor, adottando le linee guida del \textit{Material Design 3} per garantire coerenza e accessibilità.
 
 \subsection{Palette cromatica}
-La palette cromatica di EcoSpot è stata progettata per creare un legame visivo diretto con l'ambiente del Delta del Po e con le iniziative di 
-monitoraggio già attive sul territorio. Il colore primario è una tonalità di verde che è stato selezionato ispirandosi all'identità visiva del progetto 
-\textit{DISCOV.ER} (Distretti Idro-Socio-Culturali per l'Osservazione e la Valorizzazione delle Risorse) \cite{discover_project}. 
+La palette cromatica di EcoSpot crea un legame visivo diretto con l'ambiente del Delta del Po. Il colore primario, 
+una tonalità di verde desaturato, \textbf{si ispira} all'identità visiva del progetto \textit{DISCOV.ER} (Distretti Idro-Socio-Culturali per l'Osservazione e la Valorizzazione delle Risorse)
+\cite{discover_project} e richiama la vegetazione alofila tipica delle aree lagunari, trasmettendo un senso di continuità 
+tra l'interfaccia digitale e l'ecosistema circostante.
 
 Questa specifica tonalità di verde desaturato è stata scelta per richiamare la vegetazione alofila e le praterie sommerse tipiche delle aree lagunari, con l'obiettivo di trasmettere all'utente un senso di continuità tra l'interfaccia digitale e l'ecosistema circostante. 
 
@@ -251,108 +226,97 @@ Un aspetto centrale della progettazione rimane l'uso semantico del colore per in
 Questa codifica visiva permette all'utente di valutare istantaneamente il valore di una scoperta durante la navigazione sulla mappa.
 
 \subsection{Temi Adattivi}
-Per garantire l'usabilità in diverse condizioni ambientali (luce solare diretta o ore crepuscolari), 
-l'applicazione implementa un sistema di \textbf{Temi Adattivi} (Requisito \ref{rnf:usabilita}). Il sistema rileva le preferenze del dispositivo per commutare tra:
-\begin{itemize}
-    \item \textbf{Light Mode:} Ottimizzato per la leggibilità sotto la luce solare, con sfondi chiari e testi ad alto contrasto.
-    \item \textbf{Dark Mode:} Utilizza sfondi scuri per ridurre l'affaticamento visivo e il consumo energetico su dispositivi con schermi OLED, oltre a minimizzare l'impatto luminoso sulla fauna durante le osservazioni serali.
-\end{itemize}
-L'utente può personalizzare questa impostazione tramite l'area dedicata, con persistenza del dato garantita dalla sincronizzazione sul profilo Firebase.
+Al fine di assicurare un'esperienza visiva ottimale in qualsiasi condizione ambientale, l'applicazione implementa un sistema 
+di \textbf{Temi Adattivi}, rispondendo puntualmente al requisito di usabilità (Requisito \ref{rnf:usabilita}). 
+Il sistema è in grado di rilevare le preferenze del dispositivo e commutare automaticamente tra due configurazioni cromatiche 
+distinte: la \textbf{Light Mode}, caratterizzata da sfondi chiari e testi ad alto contrasto per garantire la leggibilità 
+sotto la luce solare diretta, e la \textbf{Dark Mode}. Quest'ultima adotta sfondi scuri progettati per ridurre 
+l'affaticamento visivo e il consumo energetico sui display OLED, minimizzando al contempo l'impatto luminoso sulla fauna 
+durante le osservazioni nelle ore crepuscolari. L'utente mantiene comunque il controllo completo sull'interfaccia, potendo 
+forzare manualmente la modalità desiderata tramite l'area impostazioni, con la garanzia che tale preferenza venga memorizzata 
+e sincronizzata in cloud tramite il profilo Firebase.
 
 \subsection{Pattern di Navigazione}
 La navigazione è stata progettata per minimizzare il carico cognitivo attraverso una struttura ibrida:
-\begin{itemize} 
-    \item \textbf{Bottom Navigation Bar:} Costituisce il punto di accesso principale per le macro-aree dell'applicazione (\textit{Esplora}, \textit{Statistiche} e \textit{Impostazioni}), garantendo una transizione rapida tra la mappa e l'area di gestione del profilo. La barra utilizza indicatori visivi e colori semantici per evidenziare la sezione attiva, riducendo lo sforzo mnemonico dell'utente.
-    \item \textbf{Modal Bottom Sheets:} Per la visualizzazione dei dettagli di specie, aree verdi e stazioni di monitoraggio, si è scelto di utilizzare dei pannelli a scorrimento che coprono solo parzialmente l'interfaccia. Questa scelta progettuale è fondamentale per preservare il contesto geografico: l'utente può consultare le informazioni descrittive o i dati telemetrici mantenendo visibile la propria posizione sulla mappa in background.
-    \item \textbf{Widget di Interazione Rapida:} La mappa integra elementi di controllo posizionati strategicamente per non ostruire la visuale. Sono presenti \textit{Floating Action Buttons} per l'attivazione dei filtri categoriali (layer), per l'invio di segnalazioni di \textit{Citizen Science} e per il ri-centramento della visuale GPS.
-    \item \textbf{Sistema di Ricerca e Suggerimenti:} Una barra di ricerca persistente permette di filtrare istantaneamente 
-    i contenuti della mappa (Requisito \ref{req:ricerca}). Il sistema fornisce suggerimenti dinamici basati sul nome della specie o dell'area verde, 
-    facilitando il reperimento di informazioni specifiche anche in presenza di una elevata densità di elementi cartografici.
-\end{itemize}
+
+\textbf{Bottom Navigation Bar:} Costituisce il punto di accesso principale per le macro-aree dell'applicazione (\textit{Esplora}, \textit{Statistiche} e \textit{Impostazioni}), garantendo una transizione rapida tra la mappa e l'area di gestione del profilo. La barra utilizza indicatori visivi e colori semantici per evidenziare la sezione attiva, riducendo lo sforzo mnemonico dell'utente.
+
+\textbf{Modal Bottom Sheets:} Per la visualizzazione dei dettagli di specie, aree verdi e stazioni di monitoraggio, si è scelto di utilizzare dei pannelli a scorrimento che coprono solo parzialmente l'interfaccia. Questa scelta progettuale è fondamentale per preservare il contesto geografico: l'utente può consultare le informazioni descrittive o i dati telemetrici mantenendo visibile la propria posizione sulla mappa in background.
+
+\textbf{Widget di Interazione Rapida:} La mappa integra elementi di controllo posizionati strategicamente per non ostruire la visuale. Sono presenti \textit{Floating Action Buttons} per l'attivazione dei filtri categoriali (layer), per l'invio di segnalazioni di \textit{Citizen Science} e per il ri-centramento della visuale GPS.
+
+\textbf{Sistema di Ricerca e Suggerimenti:} Una barra di ricerca persistente permette di filtrare istantaneamente i contenuti della mappa (Requisito \ref{req:ricerca}). Il sistema fornisce suggerimenti dinamici basati sul nome della specie o dell'area verde, facilitando il reperimento di informazioni specifiche anche in presenza di una elevata densità di elementi cartografici.
 
 \subsection{Mockup dell'Interfaccia}
 \label{subsec:mockups}
 
 Sulla base dei requisiti funzionali e delle linee guida ergonomiche definite, sono stati realizzati i mockup ad alta fedeltà delle schermate principali del sistema. Queste interfacce illustrano la traduzione visiva dell'architettura informativa e dei principi di navigazione ibrida, mostrando come l'utente interagisce con le componenti di esplorazione, gamification e personalizzazione.
 
-Le Figure \ref{fig:mockups_access} e \ref{fig:mockups_management} illustrano il flusso utente principale:
+Le Figure \ref{fig:all_mockups} illustrano il flusso utente principale:
 
-\begin{itemize}
-    \item \textbf{Schermata di Accesso:} Costituisce il punto d'ingresso sicuro all'ecosistema EcoSpot. Il design pulito ed essenziale mette in 
+\textbf{Schermata di Accesso:} Costituisce il punto d'ingresso sicuro all'ecosistema EcoSpot. Il design pulito ed essenziale mette in 
     risalto il branding dell'applicazione e offre opzioni chiare per l'autenticazione. È supportato l'accesso ibrido: tramite credenziali proprietarie 
     (email e password) o mediante autenticazione federata (es. Account Google), sfruttando l'integrazione con Firebase Auth per garantire una gestione 
     sicura dell'identità, necessaria per validare le attività di Citizen Science.
-
-   \item \textbf{Home Page:} Rappresenta il fulcro dell'esperienza utente. La mappa interattiva a tutto schermo domina l'interfaccia, 
+\textbf{Home Page:} Rappresenta il fulcro dell'esperienza utente. La mappa interattiva a tutto schermo domina l'interfaccia, 
     massimizzando l'area dedicata all'orientamento spaziale. 
     Per garantire l'immediata identificazione degli elementi cartografici quali Punti di Interesse (POI), fauna locale e aree verdi e la chiara accessibilità 
-    delle funzionalità, sono state adottate icone ad alto contrasto che assicurano leggibilità e coerenza stilistica.
+    delle funzionalità, sono state adottate icone ad alto contrasto che assicurano leggibilità e coerenza stilistica (Esempio nel mockup di Figura \ref{fig:home_mockup}, nella quale le icone utilizzate per i marker provengono da Icons8).
     L'interfaccia utilizza un layout a livelli (\textit{overlay}), con elementi flottanti posizionati strategicamente per fornire contesto senza ostruire la visuale: 
     nella parte superiore, la barra di ricerca è affiancata dal widget meteo; 
     lungo il margine destro sono disposti in colonna i \textit{Floating Action Buttons} per le azioni rapide (gestione dei livelli mappa e invio segnalazioni); 
     in basso a destra trova spazio il pulsante per il ricentraggio GPS, mentre alla base l'interfaccia è delimitata dalla 
     \textit{Bottom Navigation Bar} per la navigazione strutturale tra le sezioni.
         
-    \item \textbf{Statistiche:} Questa sezione è dedicata al feedback sulla gamification e alla ritenzione dell'utente. 
+\textbf{Statistiche:} Questa sezione è dedicata al feedback sulla gamification e alla ritenzione dell'utente. 
     Attraverso indicatori visivi chiari (barre di progresso, contatori), l'utente può monitorare il proprio percorso di crescita, visualizzare i punti 
     esperienza (XP) accumulati, il rango attuale e la distanza dall'obiettivo successivo. La schermata funge anche da 
     registro storico delle specie scoperte, rinforzando il senso di realizzazione.
 
-    \item \textbf{Impostazioni:} Offre all'utente il controllo sull'esperienza d'uso. Oltre alla gestione del profilo e alla disconnessione sicura, questa 
+\textbf{Impostazioni:} Offre all'utente il controllo sull'esperienza d'uso. Oltre alla gestione del profilo e alla disconnessione sicura, questa 
     schermata ospita i controlli di accessibilità e preferenza visiva. In particolare, il selettore per il Tema Adattivo (chiaro/scuro) permette di adeguare 
     l'interfaccia alle condizioni di luminosità ambientale, garantendo la leggibilità sia sotto il sole diretto che durante le osservazioni crepuscolari.
-\end{itemize}
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.30\textwidth}
+    \begin{subfigure}[b]{0.23\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/mockups/login.png} 
-        \caption{Schermata di Login}
+        \caption{Login}
         \label{fig:login_mockup}
     \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.30\textwidth}
+    \hfill 
+    \begin{subfigure}[b]{0.23\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/mockups/home.png} 
         \caption{Home Page}
         \label{fig:home_mockup}
     \end{subfigure}
-    \caption{Mockup delle schermate di accesso e navigazione principale. Nella Home Page, le icone utilizzate per i marker e l'interfaccia provengono 
-    dalla libreria Icons8.}
-    \label{fig:mockups_access}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.30\textwidth}
+    \hfill
+    \begin{subfigure}[b]{0.23\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/mockups/statistiche.png} 
-        \caption{Schermata Statistiche}
+        \caption{Statistiche}
         \label{fig:stats_mockup}
     \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.30\textwidth}
+    \hfill 
+    \begin{subfigure}[b]{0.23\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/mockups/impostazioni.png} 
-        \caption{Schermata Impostazioni}
+        \caption{Impostazioni}
         \label{fig:settings_mockup}
     \end{subfigure}
-    \caption{Mockup delle schermate di progressiGeograficane utente (Statistiche) e configurazione dell'interfaccia (Impostazioni).}
-    \label{fig:mockups_management}
+    \caption{Panoramica delle interfacce principali: (a) Login, (b) Home Page, (c) Statistiche, (d) Impostazioni.}
+    \label{fig:all_mockups}
 \end{figure}
 \section{Modellazione e Progettazione dei Dati}
 \label{sec:data_modeling}
 
-La traduzione dei requisiti informativi in una struttura dati coerente ha richiesto la progettazione di classi di dominio specifiche, atte a gestire la complessità delle interazioni spaziali e della progressione dell'utente. Il sistema adotta un paradigma NoSQL orientato ai documenti tramite \textit{Google Cloud Firestore}, ottimizzando le performance di lettura e la sincronizzazione in tempo reale.
+La traduzione dei requisiti informativi in una struttura dati coerente si basa su classi di dominio specifiche, 
+atte a gestire la complessità delle interazioni spaziali. Il sistema adotta un paradigma NoSQL orientato ai documenti 
+tramite \textit{Google Cloud Firestore}, ottimizzando le performance di lettura e la sincronizzazione in tempo reale.
 
-\subsection{Architettura del Database: Cloud Firestore}
-Per soddisfare i requisiti di scalabilità e sincronizzazione real-time, è stato scelto un database NoSQL organizzato in \textbf{Collezioni} di \textbf{Documenti} JSON-like. Questa scelta progettuale offre vantaggi specifici per il contesto di EcoSpot:
-\begin{itemize}
-    \item \textbf{Struttura Gerarchica:} Permette di incapsulare dati complessi, come la lista delle specie sbloccate, direttamente nel documento utente, migliorando la reattività dell'app.
-    \item \textbf{Aggiornamenti in Tempo Reale:} Grazie ai listener nativi, qualsiasi modifica critica (es. aumento di livello) viene propagata istantaneamente all'interfaccia senza refresh manuale.
-    \item \textbf{Funzionamento Offline:} Il database mantiene una cache locale, permettendo la consultazione dei dati anche in zone del Parco del Delta del Po prive di copertura di rete.
-\end{itemize}
+\subsection{Architettura del Database: Cloud Firestore} Al fine di soddisfare i requisiti di scalabilità e sincronizzazione in tempo reale, il sistema si avvale di un database NoSQL organizzato in \textbf{Collezioni} di \textbf{Documenti} JSON-like. Questa scelta architetturale offre vantaggi strategici significativi: la struttura gerarchica consente infatti di incapsulare dati complessi, quali la lista delle specie sbloccate, direttamente all'interno del documento utente, ottimizzando così la reattività dell'applicazione. Tale efficienza è ulteriormente potenziata dall'impiego di listener nativi, che permettono la propagazione istantanea all'interfaccia di qualsiasi modifica critica, come l'avanzamento di livello, eliminando la necessità di aggiornamenti manuali. Un aspetto fondamentale per il contesto operativo è infine il supporto al funzionamento offline (Requisito \ref{req:offline}): grazie al mantenimento automatico di una cache locale, il database garantisce la piena consultabilità dei dati anche nelle aree del Parco del Delta del Po caratterizzate da assenza di copertura di rete.
 
 \subsection{Entità del Dominio}
 La modellazione del database riflette le classi definite nel dominio applicativo, strutturate per supportare le funzionalità di gamification e monitoraggio:
@@ -376,22 +340,9 @@ La modellazione del database riflette le classi definite nel dominio applicativo
 \end{itemize}
 
 \subsection{Logica di Integrazione e Gamification}
-La progettazione prevede un livello di servizi dedicato all'orchestrazione dei dati:
-
-\begin{itemize}
-    \item \textbf{Valore Atteso della Progressione:} Il progresso verso il livello successivo è calcolato come il rapporto tra gli XP attuali e la soglia di 1000 XP per livello. Tale parametro rappresenta il \textbf{Valore Atteso} della crescita ed è visualizzato tramite indicatori lineari nella pagina delle statistiche.
-    
-    \item \textbf{Integrità delle Scoperte:} Per garantire la coerenza, il sistema utilizza transazioni atomiche durante la 
-    fase di scoperta. Ciò assicura che l'incremento di esperienza e la registrazione della specie avvengano come un'unica 
-    operazione indivisibile(Requisito \ref{req:integrita}).
-    
-    \item \textbf{Contestualizzazione Ambientale:} L'integrazione con le API di \textit{Open-Meteo} arricchisce i POI con informazioni atmosferiche locali, calcolate dinamicamente in base alle coordinate geografiche dello stesso.
-\end{itemize}
+La progettazione prevede un livello di servizi dedicato all'orchestrazione dei dati, fondamentale per sostenere le dinamiche di gioco e l'arricchimento informativo. Per quanto concerne il monitoraggio della crescita utente, il \textbf{Valore Atteso della Progressione} verso il livello successivo è calcolato come il rapporto tra i punti esperienza (XP) attuali e la soglia fissa di 1000 XP; tale parametro viene visualizzato all'utente tramite indicatori lineari nella pagina delle statistiche.
+Sul fronte della consistenza dei dati, il sistema garantisce l'\textbf{Integrità delle Scoperte} attraverso l'utilizzo di transazioni atomiche: questo meccanismo assicura che l'incremento di esperienza e la registrazione della specie nel database avvengano come un'unica operazione indivisibile, prevenendo disallineamenti o duplicazioni (Requisito \ref{req:integrita}).
+Infine, l'esperienza viene arricchita dalla \textbf{Contestualizzazione Ambientale}, ottenuta tramite l'integrazione con le API di \textit{Open-Meteo}, che permettono di associare ai Punti di Interesse (POI) informazioni atmosferiche locali calcolate dinamicamente in base alle coordinate geografiche specifiche.
 
 \subsection{Relazioni e Considerazioni Progettuali}
-Nel paradigma NoSQL, le relazioni privilegiano la performance di lettura rispetto alla normalizzazione:
-\begin{itemize}
-    \item \textbf{Relazione Utente-Specie (M:N):} Implementata salvando un array di identificatori direttamente nel documento utente per ridurre la necessità di \textit{join} costose.
-    \item \textbf{Relazione Utente-Segnalazioni (1:N):} Le segnalazioni mantengono un riferimento all'identificativo utente (\texttt{userId}), permettendo query indicizzate per visualizzare lo storico personale.
-    \item \textbf{Estensibilità:} Il modello permette l'aggiunta di nuove entità senza richiedere migrazioni rigide dello schema, garantendo un'evoluzione continua del sistema.
-\end{itemize}
+Nell'adozione del paradigma NoSQL, le scelte di modellazione hanno privilegiato la performance di lettura rispetto alla normalizzazione classica. Nello specifico, la \textbf{Relazione Utente-Specie (M:N)} è stata implementata salvando un array di identificatori direttamente all'interno del documento utente, una strategia che riduce drasticamente la necessità di operazioni di \textit{join} costose in fase di lettura. Parallelamente, la \textbf{Relazione Utente-Segnalazioni (1:N)} è gestita mantenendo nelle segnalazioni un riferimento all'identificativo utente (\texttt{userId}), permettendo così l'esecuzione di query indicizzate per la ricostruzione dello storico personale. Tale approccio garantisce infine un'elevata \textbf{Estensibilità}: il modello dati flessibile consente l'aggiunta di nuove entità o attributi senza richiedere rigide migrazioni dello schema, assicurando un'evoluzione continua e sostenibile del sistema.
