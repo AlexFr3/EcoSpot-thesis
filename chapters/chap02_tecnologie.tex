@@ -115,7 +115,7 @@ L'adozione di questa architettura risponde agli obiettivi del progetto garantend
 \end{itemize}
 
 Il linguaggio alla base del framework è \textbf{Dart}, caratterizzato da una duplice natura: ottimizzato per la UI e fortemente orientato alla programmazione asincrona.
-In particolare, il supporto nativo per \texttt{Future} e \texttt{Stream} (Requisito \ref{req:tracking}) \textbf{semplifica notevolmente} la gestione dei flussi di dati in tempo reale di EcoSpot, come l'aggiornamento della posizione dell'utente e il recupero dei dati dai sensori IoT, permettendo l'esecuzione di task complessi senza bloccare il thread principale dell'interfaccia.
+In particolare, il supporto nativo per \texttt{Future} e \texttt{Stream} (Requisito \ref{req:tracking}) semplifica notevolmente la gestione dei flussi di dati in tempo reale di EcoSpot, come l'aggiornamento della posizione dell'utente e il recupero dei dati dai sensori IoT, permettendo l'esecuzione di task complessi senza bloccare il thread principale dell'interfaccia.
 
 Nel contesto del progetto, l'utilizzo di Flutter e Dart offre una soluzione scalabile, capace di sostenere i requisiti di gamification e citizen science con un'esperienza utente di livello nativo.
 \subsection{Backend, Servizi Cloud e API}
@@ -237,46 +237,30 @@ forzare manualmente la modalità desiderata tramite l'area impostazioni, con la 
 e sincronizzata in cloud tramite il profilo Firebase.
 
 \subsection{Pattern di Navigazione}
-La navigazione è stata progettata per minimizzare il carico cognitivo attraverso una struttura ibrida:
+La navigazione è stata progettata per minimizzare il carico cognitivo attraverso una struttura ibrida.
 
-\textbf{Bottom Navigation Bar:} Costituisce il punto di accesso principale per le macro-aree dell'applicazione (\textit{Esplora}, \textit{Statistiche} e \textit{Impostazioni}), garantendo una transizione rapida tra la mappa e l'area di gestione del profilo. La barra utilizza indicatori visivi e colori semantici per evidenziare la sezione attiva, riducendo lo sforzo mnemonico dell'utente.
+La \textbf{Bottom Navigation Bar} costituisce il punto di accesso principale per le macro-aree dell'applicazione 
+(\textit{Esplora}, \textit{Statistiche} e \textit{Impostazioni}), garantendo una transizione rapida tra la mappa e l'area 
+di gestione del profilo. La barra utilizza indicatori visivi e colori semantici per evidenziare la sezione attiva, riducendo 
+lo sforzo mnemonico dell'utente.
+Per la visualizzazione dei dettagli di specie, aree verdi e stazioni di monitoraggio, si è scelto di utilizzare i \textbf{Modal Bottom Sheets} che coprono solo parzialmente l'interfaccia. Questa scelta progettuale è fondamentale per preservare il contesto geografico: l'utente può consultare le informazioni descrittive o i dati telemetrici mantenendo visibile la propria posizione sulla mappa in background.
 
-\textbf{Modal Bottom Sheets:} Per la visualizzazione dei dettagli di specie, aree verdi e stazioni di monitoraggio, si è scelto di utilizzare dei pannelli a scorrimento che coprono solo parzialmente l'interfaccia. Questa scelta progettuale è fondamentale per preservare il contesto geografico: l'utente può consultare le informazioni descrittive o i dati telemetrici mantenendo visibile la propria posizione sulla mappa in background.
+L'interazione diretta con la cartografia è agevolata da una serie di elementi di controllo posizionati strategicamente per non ostruire la visuale del territorio. L'utente ha a disposizione diversi \textbf{Floating Action Buttons} che permettono di gestire i layer informativi attraverso filtri categoriali, inviare segnalazioni di \textit{Citizen Science} o ricentrare istantaneamente la visuale sulla propria posizione GPS.
 
-\textbf{Widget di Interazione Rapida:} La mappa integra elementi di controllo posizionati strategicamente per non ostruire la visuale. Sono presenti \textit{Floating Action Buttons} per l'attivazione dei filtri categoriali (layer), per l'invio di segnalazioni di \textit{Citizen Science} e per il ri-centramento della visuale GPS.
-
-\textbf{Sistema di Ricerca e Suggerimenti:} Una barra di ricerca persistente permette di filtrare istantaneamente i contenuti della mappa (Requisito \ref{req:ricerca}). Il sistema fornisce suggerimenti dinamici basati sul nome della specie o dell'area verde, facilitando il reperimento di informazioni specifiche anche in presenza di una elevata densità di elementi cartografici.
-
+A completare questo sistema di controllo, una barra di ricerca persistente consente di filtrare i contenuti visualizzati in modo dinamico (Requisito \ref{req:ricerca}). Grazie a un meccanismo di suggerimenti basato sul nome delle specie o delle aree verdi, il sistema guida l'utente nel reperimento di informazioni specifiche, semplificando la navigazione anche quando la densità degli elementi sulla mappa risulta particolarmente elevata.
 \subsection{Mockup dell'Interfaccia}
 \label{subsec:mockups}
+Sulla base dei requisiti funzionali e delle linee guida ergonomiche precedentemente definite, sono stati realizzati i mockup ad alta fedeltà che illustrano la traduzione visiva dell'architettura informativa del sistema. Queste interfacce non rappresentano solo l'aspetto estetico dell'applicazione, ma mostrano concretamente come l'utente interagisca con le componenti di esplorazione, gamification e personalizzazione attraverso i principi di navigazione ibrida (Figura \ref{fig:all_mockups}).
 
-Sulla base dei requisiti funzionali e delle linee guida ergonomiche definite, sono stati realizzati i mockup ad alta fedeltà delle schermate principali del sistema. Queste interfacce illustrano la traduzione visiva dell'architettura informativa e dei principi di navigazione ibrida, mostrando come l'utente interagisce con le componenti di esplorazione, gamification e personalizzazione.
+L'esperienza inizia con la \textbf{schermata di accesso}, concepita come un punto d'ingresso sicuro ed essenziale all'ecosistema EcoSpot. 
+Il design pulito mette in risalto il branding e offre opzioni chiare per l'autenticazione, supportando sia le credenziali proprietarie che l'accesso federato tramite Account Google. 
+Questa gestione dell'identità, affidata a Firebase Auth, non è solo una scelta di sicurezza, ma un prerequisito fondamentale per validare e attribuire correttamente le attività di \textit{Citizen Science} \ref{sec:citizen_science}.
 
-Le Figure \ref{fig:all_mockups} illustrano il flusso utente principale:
+Il cuore pulsante dell'applicativo è però la \textbf{Home Page}, dove la mappa interattiva a tutto schermo domina l'interfaccia per massimizzare l'orientamento spaziale. L'immediata identificazione di Punti di Interesse (POI), fauna e aree verdi è garantita dall'adozione di icone ad alto contrasto (Figura \ref{fig:home_mockup}), che assicurano leggibilità e coerenza stilistica. L'interfaccia sfrutta un layout a livelli (\textit{overlay}) in cui gli elementi flottanti forniscono contesto senza ostruire la visuale: mentre la parte superiore ospita la barra di ricerca e il widget meteo, il margine destro è dedicato ai \textit{Floating Action Buttons} per la gestione dei layer e l'invio di segnalazioni. Il controllo spaziale si completa con il pulsante di ricentraggio GPS, posizionato appena sopra la \textit{Bottom Navigation Bar} che delimita strutturalmente la base dello schermo.
 
-\textbf{Schermata di Accesso:} Costituisce il punto d'ingresso sicuro all'ecosistema EcoSpot. Il design pulito ed essenziale mette in 
-    risalto il branding dell'applicazione e offre opzioni chiare per l'autenticazione. È supportato l'accesso ibrido: tramite credenziali proprietarie 
-    (email e password) o mediante autenticazione federata (es. Account Google), sfruttando l'integrazione con Firebase Auth per garantire una gestione 
-    sicura dell'identità, necessaria per validare le attività di Citizen Science.
-\textbf{Home Page:} Rappresenta il fulcro dell'esperienza utente. La mappa interattiva a tutto schermo domina l'interfaccia, 
-    massimizzando l'area dedicata all'orientamento spaziale. 
-    Per garantire l'immediata identificazione degli elementi cartografici quali Punti di Interesse (POI), fauna locale e aree verdi e la chiara accessibilità 
-    delle funzionalità, sono state adottate icone ad alto contrasto che assicurano leggibilità e coerenza stilistica (Esempio nel mockup di Figura \ref{fig:home_mockup}, nella quale le icone utilizzate per i marker provengono da Icons8).
-    L'interfaccia utilizza un layout a livelli (\textit{overlay}), con elementi flottanti posizionati strategicamente per fornire contesto senza ostruire la visuale: 
-    nella parte superiore, la barra di ricerca è affiancata dal widget meteo; 
-    lungo il margine destro sono disposti in colonna i \textit{Floating Action Buttons} per le azioni rapide (gestione dei livelli mappa e invio segnalazioni); 
-    in basso a destra trova spazio il pulsante per il ricentraggio GPS, mentre alla base l'interfaccia è delimitata dalla 
-    \textit{Bottom Navigation Bar} per la navigazione strutturale tra le sezioni.
-        
-\textbf{Statistiche:} Questa sezione è dedicata al feedback sulla gamification e alla ritenzione dell'utente. 
-    Attraverso indicatori visivi chiari (barre di progresso, contatori), l'utente può monitorare il proprio percorso di crescita, visualizzare i punti 
-    esperienza (XP) accumulati, il rango attuale e la distanza dall'obiettivo successivo. La schermata funge anche da 
-    registro storico delle specie scoperte, rinforzando il senso di realizzazione.
+Per favorire la ritenzione dell'utente e il coinvolgimento a lungo termine, la sezione dedicata alle \textbf{Statistiche} traduce i dati della gamification in feedback visivi immediati. Attraverso barre di progresso e contatori, il visitatore può monitorare il proprio percorso di crescita, visualizzando i punti esperienza (XP) accumulati, il rango raggiunto e la distanza dagli obiettivi successivi. Questa schermata non funge solo da monitor, ma anche da registro storico delle scoperte effettuate, rinforzando nel fruitore il senso di realizzazione e appartenenza alla comunità.
 
-\textbf{Impostazioni:} Offre all'utente il controllo sull'esperienza d'uso. Oltre alla gestione del profilo e alla disconnessione sicura, questa 
-    schermata ospita i controlli di accessibilità e preferenza visiva. In particolare, il selettore per il Tema Adattivo (chiaro/scuro) permette di adeguare 
-    l'interfaccia alle condizioni di luminosità ambientale, garantendo la leggibilità sia sotto il sole diretto che durante le osservazioni crepuscolari.
-
+Infine, la sezione \textbf{Impostazioni} restituisce all'utente il pieno controllo sulla propria esperienza d'uso. Oltre alla gestione del profilo, particolare attenzione è stata rivolta all'accessibilità: il selettore per il Tema Adattivo (chiaro/scuro) permette infatti di adeguare l'interfaccia alle condizioni di luminosità esterna. Si tratta di un accorgimento tecnico per chi opera sul campo, garantendo una leggibilità ottimale sia sotto l'intensa luce solare tipica delle saline, sia durante le delicate fasi di osservazione crepuscolare.
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.23\textwidth}
