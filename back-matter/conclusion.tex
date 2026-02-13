@@ -1,3 +1,47 @@
-\unchapter{Conclusioni}
+\chapter*{Conclusioni}
+\addcontentsline{toc}{chapter}{Conclusioni}
+\markboth{Conclusioni}{Conclusioni}
 
-Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse illo, nulla quo laboriosam eaque aperiam dolore excepturi voluptates fuga magnam dolores quis, nobis blanditiis, voluptas impedit beatae tempora porro aliquid mollitia eveniet quos quae. Incidunt doloremque, quo quaerat totam voluptate accusantium, deleniti consequuntur ullam, sequi sunt perferendis repudiandae. Suscipit assumenda reprehenderit quibusdam voluptate, alias expedita molestias, beatae numquam totam deserunt quidem fugit quas nulla omnis molestiae fugiat nostrum! Quam, quisquam consequuntur velit consequatur nesciunt doloribus dolorum exercitationem. At, atque harum. Dolorum, ut! Quod similique deserunt explicabo illum, odio consequatur quibusdam id dolorum sint eum pariatur saepe asperiores doloremque aliquid sequi praesentium harum, molestias minus quaerat. Provident modi facere repellendus eius et quae deserunt ex molestias iure, dignissimos est autem, accusantium tenetur voluptas quos maiores ullam quisquam a laudantium qui inventore asperiores tempora.
+Il presente lavoro di tesi ha portato alla progettazione e allo sviluppo di \textit{EcoSpot}, un’applicazione mobile cross-platform realizzata in Flutter, che si pone come strumento 
+innovativo per la valorizzazione del Parco del Delta del Po.
+L'obiettivo primario è stato raggiunto integrando tecnologie eterogenee  dalla cartografia digitale ai sensori IoT, fino ai servizi Cloud  in un'unica interfaccia accessibile, capace 
+di promuovere il turismo sostenibile e la consapevolezza ecologica.
+
+L'analisi dei risultati ottenuti dimostra come l'adozione di un'architettura a microservizi basata su Riverpod per la gestione dello stato e su Firebase come backend abbia 
+garantito la scalabilità e la robustezza necessarie per gestire flussi di dati in tempo reale.
+In particolare, l'implementazione del paradigma del \textit{Digital Twin}, che unisce i dati ambientali (livelli idrometrici, salinità) all'esperienza utente, ha permesso di rendere 
+visibili le dinamiche invisibili dell'ecosistema lagunare, trasformando il visitatore in un soggetto attivo tramite la \textit{Citizen Science} 
+\cite{2025discover}.
+
+Dal punto di vista della \textit{User Experience}, il sistema di \textit{Gamification}, basato sulla \textit{Self-Determination Theory} \cite{ryan_deci_sdt}, ha gettato le basi per un 
+coinvolgimento profondo dell'utente, incentivando l'esplorazione fisica dei luoghi tramite meccaniche di scoperta \textit{location-based}.
+Tuttavia, EcoSpot è un progetto in continua evoluzione; l'architettura modulare adottata permette di delineare diverse direttrici per sviluppi futuri volti ad arricchire ulteriormente 
+l'esperienza.
+
+\section*{Sviluppi Futuri}
+
+In ottica evolutiva, le funzionalità attuali possono essere estese introducendo nuove dinamiche di gioco e strumenti di assistenza alla navigazione, per massimizzare la \textit{retention} dell'utente e l'impatto educativo.
+
+\subsection*{Sistema di Missioni e Badge Avanzati}
+Attualmente il sistema gratifica la scoperta singola con Punti Esperienza (XP) e l'avanzamento di Rango. Un'evoluzione naturale prevede l'introduzione di \textbf{Missioni Giornaliere e Stagionali} (es. "Fotografa 3 specie di uccelli acquatici in una settimana" o "Visita tutte le stazioni idrometriche delle Valli di Comacchio").
+
+A supporto di ciò, il sistema di Badge (attualmente legato al rango) potrà essere espanso con riconoscimenti specifici per categorie, come:
+\begin{itemize}
+    \item \textbf{Il Guardiano delle Acque}: per chi consulta frequentemente i dati dei sensori IoT.
+    \item \textbf{Bio-Reporter}: per gli utenti che inviano il maggior numero di segnalazioni validate.
+    \item \textbf{Esploratore dell'Alba}: per chi visita i punti di osservazione negli orari migliori per l'avifauna.
+\end{itemize}
+
+\subsection*{Percorsi Personalizzati e Routing Intelligente}
+Per migliorare la fruibilità del territorio, si prevede l'integrazione di un sistema di \textit{routing} intelligente. A differenza della libera esplorazione attuale, l'app potrà generare itinerari \textit{turn-by-turn} personalizzati in base agli interessi dell'utente (es. "Percorso fenicotteri" o "Itinerario storico delle saline") e alle sue capacità motorie (es. percorsi accessibili in bicicletta o sedia a rotelle).
+
+L'algoritmo potrà suggerire il percorso ottimale incrociando i dati statici della mappa con i dati dinamici dei sensori e delle segnalazioni recenti: se un utente ha appena avvistato una specie rara in una zona, il sistema potrà proporre quel punto come meta suggerita ad altri utenti nelle vicinanze.
+
+\subsection*{Riconoscimento Automatico tramite AI}
+Per potenziare il lato \textit{Citizen Science} e ridurre le barriere all'ingresso per i non esperti, si ipotizza l'integrazione di modelli di \textit{Machine Learning} (es. TensorFlow Lite) direttamente \textit{on-device}. Questa funzionalità permetterebbe il riconoscimento automatico o assistito della specie inquadrata dalla fotocamera durante la fase di segnalazione, validando istantaneamente la scoperta e riducendo il carico di moderazione lato server.
+
+\subsection*{Funzionalità Social e Leaderboard}
+Facendo leva sul bisogno di "Relazione" descritto nella teoria SDT, l'app potrà implementare classifiche (\textit{Leaderboard}) globali o tra amici, basate sui punti XP accumulati. La condivisione delle proprie "Carte Collezione" (le specie sbloccate) sui social network esterni fungerà inoltre da volano promozionale per il Parco stesso.
+
+\subsection*{Realtà Aumentata (AR)}
+Infine, sfruttando i sensori del dispositivo mobile già in uso (GPS, bussola), si potrà sviluppare una modalità in Realtà Aumentata. Inquadrando il paesaggio, l'utente vedrà sovrapposti i dati dei sensori IoT (es. il livello dell'acqua visualizzato direttamente sopra il canale) o le sagome virtuali della fauna presente in quell'habitat, rendendo l'esperienza immersiva e rafforzando il concetto di gemello digitale del territorio.
