@@ -2,46 +2,37 @@
 \addcontentsline{toc}{chapter}{Conclusioni}
 \markboth{Conclusioni}{Conclusioni}
 
-Il presente lavoro di tesi ha portato alla progettazione e allo sviluppo di \textit{EcoSpot}, un’applicazione mobile cross-platform realizzata in Flutter, che si pone come strumento 
-innovativo per la valorizzazione del Parco del Delta del Po.
-L'obiettivo primario è stato raggiunto integrando tecnologie eterogenee  dalla cartografia digitale ai sensori IoT, fino ai servizi Cloud  in un'unica interfaccia accessibile, capace 
-di promuovere il turismo sostenibile e la consapevolezza ecologica.
+Il presente lavoro di tesi ha portato alla progettazione e allo sviluppo di \textit{EcoSpot}, un’applicazione mobile cross-platform realizzata in Flutter che si propone come uno 
+strumento innovativo per la valorizzazione del Parco del Delta del Po. L'obiettivo primario è stato raggiunto integrando tecnologie eterogenee dalla cartografia digitale ai 
+sensori IoT, fino ai servizi Cloud in un'unica interfaccia accessibile, capace di promuovere attivamente il turismo sostenibile e la consapevolezza ecologica.
 
-L'analisi dei risultati ottenuti dimostra come l'adozione di un'architettura a microservizi basata su Riverpod per la gestione dello stato e su Firebase come backend abbia 
-garantito la scalabilità e la robustezza necessarie per gestire flussi di dati in tempo reale.
-In particolare, l'implementazione del paradigma del \textit{Digital Twin}, che unisce i dati ambientali (livelli idrometrici, salinità) all'esperienza utente, ha permesso di rendere 
-visibili le dinamiche invisibili dell'ecosistema lagunare, trasformando il visitatore in un soggetto attivo tramite la \textit{Citizen Science} 
-\cite{2025discover}.
+L'analisi dei risultati dimostra come l'adozione di un'architettura a microservizi, basata su Riverpod per la gestione dello stato e su Firebase come backend, abbia garantito la 
+scalabilità e la robustezza necessarie per gestire flussi di dati in tempo reale. In particolare, l'implementazione del paradigma del \textit{Digital Twin}, che unisce i dati 
+ambientali (come livelli idrometrici e salinità) all'esperienza utente, ha permesso di rendere visibili le dinamiche spesso impercettibili dell'ecosistema lagunare. 
+Questo approccio ha trasformato il visitatore da semplice osservatore a soggetto attivo nel monitoraggio del territorio tramite la \textit{Citizen Science} \cite{2025discover}.
 
-Dal punto di vista della \textit{User Experience}, il sistema di \textit{Gamification}, basato sulla \textit{Self-Determination Theory} \cite{ryan_deci_sdt}, ha gettato le basi per un 
-coinvolgimento profondo dell'utente, incentivando l'esplorazione fisica dei luoghi tramite meccaniche di scoperta \textit{location-based}.
-Tuttavia, EcoSpot è un progetto in continua evoluzione; l'architettura modulare adottata permette di delineare diverse direttrici per sviluppi futuri volti ad arricchire ulteriormente 
-l'esperienza.
+Dal punto di vista della \textit{User Experience}, l'integrazione di un sistema di \textit{Gamification} fondato sulla \textit{Self-Determination Theory} \cite{ryan_deci_sdt} ha 
+gettato le basi per un coinvolgimento profondo, incentivando l'esplorazione fisica dei luoghi tramite meccaniche di scoperta \textit{location-based}. Tuttavia, EcoSpot è un progetto 
+in continua evoluzione; l'architettura modulare adottata permette di delineare diverse direttrici per sviluppi futuri volti ad arricchire ulteriormente l'esperienza immersiva nel Parco.
 
 \section*{Sviluppi Futuri}
 
-In ottica evolutiva, le funzionalità attuali possono essere estese introducendo nuove dinamiche di gioco e strumenti di assistenza alla navigazione, per massimizzare la \textit{retention} dell'utente e l'impatto educativo.
+In ottica evolutiva, le funzionalità attuali possono essere estese introducendo nuove dinamiche di partecipazione per massimizzare la fidelizzazione dell'utente e l'impatto educativo 
+del sistema. Mentre il prototipo attuale gratifica la scoperta singola con l'avanzamento di rango, un'evoluzione naturale prevede l'introduzione di missioni giornaliere e stagionali. 
+Queste sfide, come la richiesta di documentare specifiche specie in un arco temporale definito o visitare determinate aree verdi, potrebbero essere accompagnate da un meccanismo di 
+medaglie di completamento. L'obiettivo è premiare il collezionismo integrale della biodiversità censita, trasformando la visita in una sfida coinvolgente per completare il proprio 
+archivio digitale e favorendo un coinvolgimento costante nel lungo periodo.
 
-\subsection*{Sistema di Missioni e Badge Avanzati}
-Attualmente il sistema gratifica la scoperta singola con Punti Esperienza (XP) e l'avanzamento di Rango. Un'evoluzione naturale prevede l'introduzione di \textbf{Missioni Giornaliere e Stagionali} (es. "Fotografa 3 specie di uccelli acquatici in una settimana" o "Visita tutte le stazioni idrometriche delle Valli di Comacchio").
+Per migliorare la fruibilità del territorio, si prevede inoltre l'integrazione di un sistema di \textit{routing} intelligente. A differenza della libera esplorazione, l'app potrebbe 
+generare itinerari personalizzati basati sugli interessi specifici dell'utente o sulle sue capacità motorie, suggerendo percorsi accessibili e ottimizzati. Tale algoritmo potrebbe 
+persino diventare dinamico, incrociando i dati della mappa con le segnalazioni recenti degli utenti per proporre mete suggerite in tempo reale, come l'avvistamento di una specie rara 
+nelle vicinanze.
 
-A supporto di ciò, il sistema di Badge (attualmente legato al rango) potrà essere espanso con riconoscimenti specifici per categorie, come:
-\begin{itemize}
-    \item \textbf{Il Guardiano delle Acque}: per chi consulta frequentemente i dati dei sensori IoT.
-    \item \textbf{Bio-Reporter}: per gli utenti che inviano il maggior numero di segnalazioni validate.
-    \item \textbf{Esploratore dell'Alba}: per chi visita i punti di osservazione negli orari migliori per l'avifauna.
-\end{itemize}
+Parallelamente, per potenziare il lato \textit{Citizen Science} e ridurre le barriere all'ingresso per i non esperti, si ipotizza l'adozione di modelli di \textit{Machine Learning} 
+direttamente sul dispositivo tramite TensorFlow Lite. Questa funzionalità consentirebbe il riconoscimento assistito della fauna inquadrata dalla fotocamera, validando istantaneamente 
+le segnalazioni e migliorando la qualità dei dati raccolti.
 
-\subsection*{Percorsi Personalizzati e Routing Intelligente}
-Per migliorare la fruibilità del territorio, si prevede l'integrazione di un sistema di \textit{routing} intelligente. A differenza della libera esplorazione attuale, l'app potrà generare itinerari \textit{turn-by-turn} personalizzati in base agli interessi dell'utente (es. "Percorso fenicotteri" o "Itinerario storico delle saline") e alle sue capacità motorie (es. percorsi accessibili in bicicletta o sedia a rotelle).
-
-L'algoritmo potrà suggerire il percorso ottimale incrociando i dati statici della mappa con i dati dinamici dei sensori e delle segnalazioni recenti: se un utente ha appena avvistato una specie rara in una zona, il sistema potrà proporre quel punto come meta suggerita ad altri utenti nelle vicinanze.
-
-\subsection*{Riconoscimento Automatico tramite AI}
-Per potenziare il lato \textit{Citizen Science} e ridurre le barriere all'ingresso per i non esperti, si ipotizza l'integrazione di modelli di \textit{Machine Learning} (es. TensorFlow Lite) direttamente \textit{on-device}. Questa funzionalità permetterebbe il riconoscimento automatico o assistito della specie inquadrata dalla fotocamera durante la fase di segnalazione, validando istantaneamente la scoperta e riducendo il carico di moderazione lato server.
-
-\subsection*{Funzionalità Social e Leaderboard}
-Facendo leva sul bisogno di "Relazione" descritto nella teoria SDT, l'app potrà implementare classifiche (\textit{Leaderboard}) globali o tra amici, basate sui punti XP accumulati. La condivisione delle proprie "Carte Collezione" (le specie sbloccate) sui social network esterni fungerà inoltre da volano promozionale per il Parco stesso.
-
-\subsection*{Realtà Aumentata (AR)}
-Infine, sfruttando i sensori del dispositivo mobile già in uso (GPS, bussola), si potrà sviluppare una modalità in Realtà Aumentata. Inquadrando il paesaggio, l'utente vedrà sovrapposti i dati dei sensori IoT (es. il livello dell'acqua visualizzato direttamente sopra il canale) o le sagome virtuali della fauna presente in quell'habitat, rendendo l'esperienza immersiva e rafforzando il concetto di gemello digitale del territorio.
+Infine, l'esperienza potrebbe espandersi verso il socialecon l'implementazione di classifiche globali o tra amici e la 
+condivisione delle proprie collezioni sui social network agirebbero da metodo promozionale per il Parco. Il culmine di questa evoluzione tecnologica sarebbe l'integrazione della Realtà 
+Aumentata: inquadrando il paesaggio, l'utente vedrebbe sovrapposti i dati invisibili dei sensori IoT o sagome virtuali della fauna locale, consolidando definitivamente il legame tra 
+l'ambiente fisico e il suo gemello digitale.
