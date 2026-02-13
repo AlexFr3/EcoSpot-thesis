@@ -171,38 +171,36 @@ L'architettura della navigazione e delle viste principali si articola come segue
 
     \item \textbf{Profilo e Statistiche:} Questa sezione impiega una \texttt{CustomScrollView} con \texttt{SliverAppBar} per creare un header collassabile contenente il rango e il livello utente. Il corpo della pagina ospita una \texttt{GridView} che visualizza la collezione delle specie: gli elementi scoperti appaiono a colori (con un bordo indicante la rarità), mentre quelli non ancora visitati sono mostrati in scala di grigi, sfruttando la gamification per incentivare il completamento della raccolta.
 \end{itemize}
-
 \subsection{Mappa Interattiva e Clustering}
 La visualizzazione cartografica è il punto centrale dell'interazione ed è gestita dal widget \texttt{MapWidget}, che integra la libreria \textit{flutter\_map} 
 per il rendering di mappe basate su tiles OpenStreetMap (Requisito \ref{req:mappa}).
 
 L'architettura della mappa è basata su uno \texttt{Stack} di layer sovrapposti, che permette di separare il livello di base (le tiles geografiche) dai 
 livelli informativi (marker e UI). Per garantire prestazioni elevate anche con un numero crescente di elementi sulla mappa, è stata adottata una strategia 
-ibrida di rendering:
+ibrida di rendering.
 
-\begin{itemize}
-    \item \textbf{Gestione Layer e Filtri:} L'utente ha la possibilità di attivare o disattivare dinamicamente diverse 
-    categorie di marker (Fauna, Aree Verdi, Sensori, Punti di Interesse) tramite un dialog di configurazione (Requisito \ref{req:ricerca}). 
-    Questa logica è gestita tramite variabili di stato booleane (es. \texttt{\_showAnimals}, \texttt{\_showSensors}) che condizionano il rendering dei rispettivi \texttt{MarkerLayer} all'interno del metodo \texttt{build}.
-    \begin{figure}[H]
-      \centering
-      \includegraphics[width=0.38\textwidth]{figures/app_img/layers.png}
-      \caption{Pannello per la gestione dei livelli e filtri della mappa.}
-      \label{fig:layers}
-    \end{figure}
+Per quanto riguarda la \textbf{Gestione Layer e Filtri}, l'utente ha la possibilità di attivare o disattivare dinamicamente diverse 
+categorie di marker (Fauna, Aree Verdi, Sensori, Punti di Interesse) tramite un dialog di configurazione (Requisito \ref{req:ricerca}). 
+Questa logica è gestita tramite variabili di stato booleane (es. \texttt{\_showAnimals}, \texttt{\_showSensors}) che condizionano il rendering dei rispettivi \texttt{MarkerLayer} all'interno del metodo \texttt{build}.
 
-    \item \textbf{Clustering dei Punti di Interesse (POI):} Per evitare il sovraffollamento visivo (cluttering) quando si visualizzano i numerosi Punti di 
-    Interesse (configurati in \texttt{PoiConfig.points}) e per non compromettere le prestazioni di rendering, è stato implementato un sistema di clustering 
-    tramite il pacchetto \textit{flutter\_map\_marker\_cluster}. Questa libreria raggruppa automaticamente i marker vicini in un unico indicatore 
-    circolare contenente il numero di elementi nel cluster quando lo zoom della mappa è basso, che si espande (de-cluster) automaticamente 
-    aumentando il livello di zoom.
-    \begin{figure}[H]
-      \centering
-      \includegraphics[width=0.40\textwidth]{figures/app_img/POI.png}
-      \caption{Mappa posizionata su un cluster di POI e uno visibile}
-      \label{fig:POI}
-    \end{figure}
-\end{itemize}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.38\textwidth]{figures/app_img/layers.png}
+  \caption{Pannello per la gestione dei livelli e filtri della mappa.}
+  \label{fig:layers}
+\end{figure}
+
+Inoltre, è stato implementato il \textbf{Clustering dei Punti di Interesse (POI)}. Per evitare il sovraffollamento visivo (cluttering) quando si visualizzano i numerosi Punti di 
+Interesse (configurati in \texttt{PoiConfig.points}) e per non compromettere le prestazioni di rendering, è stato integrato un sistema tramite il pacchetto \textit{flutter\_map\_marker\_cluster}. Questa libreria raggruppa automaticamente i marker vicini in un unico indicatore 
+circolare contenente il numero di elementi nel cluster quando lo zoom della mappa è basso, che si espande (de-cluster) automaticamente 
+aumentando il livello di zoom.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.40\textwidth]{figures/app_img/POI.png}
+  \caption{Mappa posizionata su un cluster di POI e uno visibile}
+  \label{fig:POI}
+\end{figure}
 
 Di seguito è riportata la configurazione del layer di clustering, che definisce il raggio di aggregazione e il builder personalizzato per l'indicatore numerico:
 
