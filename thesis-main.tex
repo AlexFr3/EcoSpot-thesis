@@ -22,7 +22,9 @@
 \usepackage{acronym}
 \usepackage{subcaption}
 \usepackage{float}
-\usepackage{csquotes}
+\usepackage[autostyle]{csquotes} 
+% per le virgolette
+\DeclareQuoteAlias{american}{italian}
 \usepackage{todonotes}
 
 \bibliographystyle{unsrtnat} % Stile bibliografia
@@ -35,9 +37,14 @@
 \graphicspath{{./figures/}{./img/}} % Cartelle immagini
 
 % Header e Footer
-\pagestyle{fancy}\addtolength{\headwidth}{20pt}
+\pagestyle{fancy}
+\addtolength{\headwidth}{20pt}
 \renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
 \renewcommand{\sectionmark}[1]{\markright{\thesection \ #1}{}}
+% Definizione globale per TUTTE le pagine (pari e dispari)
+% \lhead: Pari=Numero Pagina, Dispari=Nome Sezione (\rightmark)
+\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+% \rhead: Pari=Nome Capitolo (\leftmark), Dispari=Numero Pagina
 \rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
 \cfoot{}
 
@@ -45,13 +52,12 @@
 \newcommand{\nchapter}[1]{
   \clearpage{\pagestyle{empty}}
   \chapter{#1}
-  \lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+  %\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
 }
 \newcommand{\unchapter}[1]{
   \clearpage{\pagestyle{empty}}
   \chapter*{#1}
-  \rhead[\fancyplain{}{\bfseries #1}]{\fancyplain{}{\bfseries\thepage}}
-  \lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries #1}}
+  \markboth{#1}{#1} 
   \addcontentsline{toc}{chapter}{#1}
 }
 \newcommand{\unsection}[1]{\section*{#1}\addcontentsline{toc}{section}{#1}}

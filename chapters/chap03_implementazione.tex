@@ -2,7 +2,7 @@
 \label{chap:implementation}
 
 Questo capitolo descrive le scelte progettuali e le soluzioni tecniche adottate per la realizzazione del sistema \textit{EcoSpot}. 
-La trattazione è suddivisa in due macro-aree: l'applicazione mobile, sviluppata in Flutter per garantire la compatibilità multipiattaforma, e l'integrazione con i servizi di backend e \ac{IoT} per la gestione dei dati e della sensoristica.
+La trattazione si focalizza sull'organizzazione interna dell'applicazione mobile, descrivendo la suddivisione in layer logici, la gestione dello stato tramite Riverpod e le soluzioni tecniche adottate per le funzionalità chiave come la mappa interattiva, la gamification e l'integrazione dei sensori IoT.
 
 \section{Architettura dell'App}
 Il progetto è stato strutturato seguendo una divisione in layer logici per garantire manutenibilità (Requisito \ref{rnf:manutenibilita}), scalabilità e 
@@ -19,14 +19,49 @@ testabilità del codice. La cartella sorgente è organizzata nei seguenti moduli
         \item \texttt{WeatherService}: Per l'integrazione con le \ac{API} di Open-Meteo.
     \end{itemize}
     
-    \item \textbf{State Management Layer}: Utilizza il pacchetto \textbf{Riverpod} per la gestione dello stato reattivo e la \textit{Dependency Injection} \ref{riverpod}. 
+    \item \textbf{State Management Layer}: Utilizza il pacchetto \textbf{Riverpod} per la gestione dello stato reattivo e la \textit{Dependency Injection} \cite{riverpod}. 
     Il file \texttt{app\_providers.dart} centralizza i provider globali, gestendo flussi asincroni come lo stato dell'autenticazione e il caricamento dei 
     dati geo-spaziali.
     
     \item \textbf{Presentation Layer}: Comprende i widget dell'interfaccia utente, separando le pagine principali (es. \texttt{HomePage}, 
     \texttt{StatisticsPage}) dai componenti riutilizzabili (es. \texttt{MapWidget}) e dalla definizione del tema visivo.
 \end{itemize}
-\subsection{Sincronizzazione dati}
+
+\section{Sviluppo dell'App}
+Lo sviluppo si è concentrato sulla creazione di un'esperienza utente fluida, sfruttando le capacità multi-piattaforma di Flutter e un'architettura reattiva solida. Di seguito vengono analizzati i componenti tecnici fondamentali: la gestione dello stato, la visualizzazione cartografica, le meccaniche di gamification e l'integrazione IoT.
+
+\subsection{Gestione dello Stato}
+La gestione globale dello stato è affidata al file \texttt{app\_providers.dart}, che definisce i provider \textbf{Riverpod} per l'intera applicazione. Questo approccio centralizzato permette di implementare una \textit{Dependency Injection} robusta: i servizi core come \texttt{DatabaseHelper} o \texttt{AuthService} vengono istanziati una sola volta e iniettati nei widget o in altri provider tramite il riferimento \texttt{ref}, migliorando la testabilità e la modularità del codice.
+
+Un aspetto cruciale dell'architettura è la capacità di creare "stati derivati". Un esempio significativo è rappresentato dal \texttt{speciesProvider}. Invece di esporre semplicemente la lista statica della fauna, questo provider combina in modo asincrono i dati grezzi delle specie con il profilo dell'utente corrente (recuperato tramite \texttt{userProfileProvider}). In questo modo, il flag \texttt{isVisited} di ogni entità viene calcolato dinamicamente prima ancora di raggiungere l'interfaccia utente.
+
+\begin{listing}[H]
+\begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
+// File: lib/providers/app_providers.dart
+
+final speciesProvider = FutureProvider<List<Species>>((ref) async {
+  // 1. Recupero asincrono della lista completa delle specie
+  final allSpecies = await ref.watch(_rawSpeciesProvider.future);
+
+  // 2. Ascolto reattivo del profilo utente
+  final userProfile = ref.watch(userProfileProvider).asData?.value;
+  final visitedIds = userProfile?.visitedSpeciesIds ?? [];
+
+  // 3. Incrocio dei dati per determinare lo stato di visita
+  for (var species in allSpecies) {
+    species.isVisited = visitedIds.contains(species.id);
+  }
+
+  return allSpecies;
+});
+\end{minted}
+\caption{Logica di stato derivato per la gestione delle specie visitate}
+\label{lst:species_provider}
+\end{listing}
+
+Grazie a questa struttura, l'interfaccia utente (implementata tramite \texttt{ConsumerWidget}) reagisce istantaneamente ai cambiamenti: se l'utente effettua una nuova scoperta, il \texttt{userProfileProvider} emette un nuovo stato, il \texttt{speciesProvider} ricalcola la lista e la mappa si aggiorna automaticamente mostrando il nuovo badge di avvenuta visita, senza necessità di callback manuali o controller complessi.
+
+\subsubsection{Sincronizzazione Dati}
 L'implementazione della logica reattiva si basa sull'utilizzo degli \texttt{StreamProvider} di Riverpod, un pattern che permette di gestire flussi di dati asincroni garantendo che l'interfaccia si aggiorni automaticamente al variare dello stato sottostante.
 
 Nel caso del tracciamento utente, il provider \texttt{userPositionProvider} (definito in \texttt{app\_providers.dart}) 
@@ -94,9 +129,48 @@ delle specie non ancora visitate, utilizzando la classe \texttt{Distance} di \te
 \end{listing}
 
 Questo approccio disaccoppia la ricezione del dato dalla logica applicativa, ottimizzando le risorse del dispositivo mobile.
+\subsection{Interfaccia Utente}
+L'interfaccia grafica è stata progettata rispettando le linee guida del \textbf{Material Design 3}, al fine di garantire coerenza visiva 
+e usabilità multipiattaforma (Requisito \ref{req:multipiattaforma}). La gestione dei temi è centralizzata nella classe \texttt{AppColors}, che definisce le 
+palette cromatiche per la modalità chiara e scura (gestite tramite il provider \texttt{themeModeProvider}). Il sistema 
+adatta automaticamente sfondi, testi e gradienti in base alle preferenze del sistema operativo o alle scelte dell'utente (Requisito \ref{rnf:usabilita}).
 
-\section{Sviluppo dell'Applicazione Mobile}
-Lo sviluppo si è concentrato sulla creazione di un'esperienza utente fluida, sfruttando le capacità multi-piattaforma di Flutter.
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/app_img/home.png}
+        \caption{Home con tema scuro}
+        \label{fig:dark_theme}
+    \end{minipage}
+    \hfill 
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/app_img/lightTheme.png}
+        \caption{Home con tema chiaro}
+        \label{fig:light_theme}
+    \end{minipage}
+\end{figure}
+
+L'accesso all'applicazione è mediato da una schermata di login (Figura \ref{fig:login_page}) che offre tre modalità di autenticazione, orchestrate dall'\texttt{AuthService}: credenziali standard (email/password), Google Sign-In per un accesso rapido e una modalità \enquote{Ospite} anonima, pensata per consentire l'esplorazione delle funzionalità base prima della registrazione.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/app_img/login.png}
+    \caption{Schermata di Login con opzioni di accesso multiplo.}
+    \label{fig:login_page}
+\end{figure}
+
+L'architettura della navigazione e delle viste principali si articola come segue:
+
+\begin{itemize}
+    \item \textbf{Home Dashboard:} La schermata principale utilizza un widget \texttt{Stack} per sovrapporre elementi UI fluttuanti al layer cartografico. Nella parte superiore, una barra di ricerca con 
+    autocompletamento facilita il filtraggio delle specie (Requisito \ref{req:ricerca}), mentre widget dedicati mostrano il meteo locale in tempo reale (tramite \texttt{WeatherService}). I pulsanti d'azione consentono di ricentrare la visuale sulla posizione dell'utente, gestire i layer della mappa o aprire il dialog delle segnalazioni.
+    
+    \item \textbf{Schede di Dettaglio:} Per la consultazione di fauna e flora sono stati implementati widget basati su \texttt{DraggableScrollableSheet}. Questo componente permette all'utente di trascinare la scheda dal basso verso l'alto (coprendo dal 50\% al 95\% dello schermo) rivelando descrizioni, curiosità e dati scientifici. L'esperienza utente è arricchita da animazioni \texttt{Hero}, che collegano fluidamente l'icona del marker sulla mappa all'immagine di copertina della scheda.
+
+    \item \textbf{Profilo e Statistiche:} Questa sezione impiega una \texttt{CustomScrollView} con \texttt{SliverAppBar} per creare un header collassabile contenente il rango e il livello utente. Il corpo della pagina ospita una \texttt{GridView} che visualizza la collezione delle specie: gli elementi scoperti appaiono a colori (con un bordo indicante la rarità), mentre quelli non ancora visitati sono mostrati in scala di grigi, sfruttando la gamification per incentivare il completamento della raccolta.
+\end{itemize}
 
 \subsection{Mappa Interattiva e Clustering}
 La visualizzazione cartografica è il punto centrale dell'interazione ed è gestita dal widget \texttt{MapWidget}, che integra la libreria \textit{flutter\_map} 
@@ -202,7 +276,7 @@ personalizzato.
     \label{fig:green_area_details}
 \end{figure} 
 
-Come illustrato nel seguente Codice\ref{lst:map_markers}, ogni marker viene incapsulato in un \texttt{GestureDetector}: questo permette di 
+Come illustrato nel seguente Codice \ref{lst:map_markers}, ogni marker viene incapsulato in un \texttt{GestureDetector}: questo permette di 
 intercettare l'evento \texttt{onTap} dell'utente e scatenare l'apertura della scheda di dettaglio (\texttt{GreenAreaDetailSheet}) tramite una modale dal basso,
 garantendo un'esperienza di navigazione fluida e intuitiva.
 
@@ -234,7 +308,7 @@ garantendo un'esperienza di navigazione fluida e intuitiva.
   \label{lst:map_markers}
 \end{listing}
 
-\subsection{Gestione Gamification}
+\subsection{Gamification}
 Il cuore dell'esperienza utente è il sistema di scoperta ("Discovery"), progettato per incentivare l'esplorazione fisica del Parco. L'applicazione calcola costantemente la distanza geodetica tra la posizione dell'utente e quella delle specie target, sfruttando la precisione offerta dal pacchetto \texttt{latlong2}.
 
 \subsubsection{Logica di Scoperta}
@@ -270,7 +344,6 @@ void _checkDiscoveries(LatLng userLocation) {
 \caption{Algoritmo di scoperta basato sulla distanza geodetica}
 \label{lst:discovery}
 \end{listing}
-
 \subsubsection{Utente e Rango}
 Il modello utente (\texttt{UserModel}) incapsula la logica di progressione tramite l'estensione \texttt{UserStatsLogic}. Il livello viene calcolato dinamicamente dividendo gli 
 XP totali per la soglia fissa (Requisito \ref{req:gamification}) di 1000 punti (\texttt{xpPerLevel}).
@@ -331,6 +404,7 @@ I dati raccolti vengono incapsulati in un oggetto \texttt{ReportModel} e inviati
     \label{fig:report_dialog}
 \end{figure}
 \clearpage
+
 \subsection{Integrazione Sensori}
 Per fornire un quadro dettagliato dello stato ambientale del Parco, l'applicazione integra dati provenienti da stazioni di monitoraggio reali. 
 L'architettura prevede una configurazione statica delle stazioni, definita nel codice per mappare le posizioni geografiche e gli identificativi hardware dei 
@@ -386,75 +460,4 @@ if (response.statusCode == 200) {
 \end{listing}
 
 L'unione di questi due componenti permette di visualizzare popup informativi interattivi sulla mappa: cliccando sull'icona di una stazione, l'utente visualizza i parametri ambientali aggiornati in tempo reale, come temperatura dell'acqua, livello idrometrico e conduttività.
-\section{Interfaccia Utente}
-L'interfaccia grafica è stata progettata rispettando le linee guida del \textbf{Material Design 3}, al fine di garantire coerenza visiva 
-e usabilità multipiattaforma (Requisito \ref{req:multipiattaforma}). La gestione dei temi è centralizzata nella classe \texttt{AppColors}, che definisce le 
-palette cromatiche per la modalità chiara e scura (gestite tramite il provider \texttt{themeModeProvider}). Il sistema 
-adatta automaticamente sfondi, testi e gradienti in base alle preferenze del sistema operativo o alle scelte dell'utente (Requisito \ref{rnf:usabilita}).
 
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/app_img/home.png}
-        \caption{Home con tema scuro}
-        \label{fig:dark_theme}
-    \end{minipage}
-    \hfill 
-    \begin{minipage}{0.45\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/app_img/lightTheme.png}
-        \caption{Home con tema chiaro}
-        \label{fig:light_theme}
-    \end{minipage}
-\end{figure}
-
-L'accesso all'applicazione è mediato da una schermata di login (Figura \ref{fig:login_page}) che offre tre modalità di autenticazione, orchestrate dall'\texttt{AuthService}: credenziali standard (email/password), Google Sign-In per un accesso rapido e una modalità "Ospite" anonima, pensata per consentire l'esplorazione delle funzionalità base prima della registrazione.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.45\textwidth]{figures/app_img/login.png}
-    \caption{Schermata di Login con opzioni di accesso multiplo.}
-    \label{fig:login_page}
-\end{figure}
-
-L'architettura della navigazione e delle viste principali si articola come segue:
-
-\begin{itemize}
-    \item \textbf{Home Dashboard:} La schermata principale utilizza un widget \texttt{Stack} per sovrapporre elementi UI fluttuanti al layer cartografico. Nella parte superiore, una barra di ricerca con 
-    autocompletamento facilita il filtraggio delle specie (Requisito \ref{req:ricerca}), mentre widget dedicati mostrano il meteo locale in tempo reale (tramite \texttt{WeatherService}). I pulsanti d'azione consentono di ricentrare la visuale sulla posizione dell'utente, gestire i layer della mappa o aprire il dialog delle segnalazioni.
-    
-    \item \textbf{Schede di Dettaglio:} Per la consultazione di fauna e flora sono stati implementati widget basati su \texttt{DraggableScrollableSheet}. Questo componente permette all'utente di trascinare la scheda dal basso verso l'alto (coprendo dal 50\% al 95\% dello schermo) rivelando descrizioni, curiosità e dati scientifici. L'esperienza utente è arricchita da animazioni \texttt{Hero}, che collegano fluidamente l'icona del marker sulla mappa all'immagine di copertina della scheda.
-
-    \item \textbf{Profilo e Statistiche:} Questa sezione impiega una \texttt{CustomScrollView} con \texttt{SliverAppBar} per creare un header collassabile contenente il rango e il livello utente. Il corpo della pagina ospita una \texttt{GridView} che visualizza la collezione delle specie: gli elementi scoperti appaiono a colori (con un bordo indicante la rarità), mentre quelli non ancora visitati sono mostrati in scala di grigi, sfruttando la gamification per incentivare il completamento della raccolta.
-\end{itemize}
-\section{Gestione dello Stato}
-La gestione globale dello stato è affidata al file \texttt{app\_providers.dart}, che definisce i provider \textbf{Riverpod} per l'intera applicazione. Questo approccio centralizzato permette di implementare una \textit{Dependency Injection} robusta: i servizi core come \texttt{DatabaseHelper} o \texttt{AuthService} vengono istanziati una sola volta e iniettati nei widget o in altri provider tramite il riferimento \texttt{ref}, migliorando la testabilità e la modularità del codice.
-
-Un aspetto cruciale dell'architettura è la capacità di creare "stati derivati". Un esempio significativo è rappresentato dal \texttt{speciesProvider}. Invece di esporre semplicemente la lista statica della fauna, questo provider combina in modo asincrono i dati grezzi delle specie con il profilo dell'utente corrente (recuperato tramite \texttt{userProfileProvider}). In questo modo, il flag \texttt{isVisited} di ogni entità viene calcolato dinamicamente prima ancora di raggiungere l'interfaccia utente.
-
-\begin{listing}[H]
-\begin{minted}[frame=single, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, breaklines]{dart}
-// File: lib/providers/app_providers.dart
-
-final speciesProvider = FutureProvider<List<Species>>((ref) async {
-  // 1. Recupero asincrono della lista completa delle specie
-  final allSpecies = await ref.watch(_rawSpeciesProvider.future);
-
-  // 2. Ascolto reattivo del profilo utente
-  final userProfile = ref.watch(userProfileProvider).asData?.value;
-  final visitedIds = userProfile?.visitedSpeciesIds ?? [];
-
-  // 3. Incrocio dei dati per determinare lo stato di visita
-  for (var species in allSpecies) {
-    species.isVisited = visitedIds.contains(species.id);
-  }
-
-  return allSpecies;
-});
-\end{minted}
-\caption{Logica di stato derivato per la gestione delle specie visitate}
-\label{lst:species_provider}
-\end{listing}
-
-Grazie a questa struttura, l'interfaccia utente (implementata tramite \texttt{ConsumerWidget}) reagisce istantaneamente ai cambiamenti: se l'utente effettua una nuova scoperta, il \texttt{userProfileProvider} emette un nuovo stato, il \texttt{speciesProvider} ricalcola la lista e la mappa si aggiorna automaticamente mostrando il nuovo badge di avvenuta visita, senza necessità di callback manuali o controller complessi.
