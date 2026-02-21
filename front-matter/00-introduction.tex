@@ -3,49 +3,63 @@
 \markboth{Introduzione}{Introduzione}
 
 Il Parco del Delta del Po costituisce uno degli ecosistemi più complessi e delicati del panorama europeo, 
-rappresentando una Riserva di Biosfera MAB UNESCO di inestimabile valore naturalistico. Nonostante la 
-straordinaria biodiversità e la varietà di habitat lagunari lo rendano una meta d'eccellenza per il 
-turismo sostenibile, la fragilità di un territorio minacciato da fenomeni critici come l'intrusione 
-del cuneo salino richiede soluzioni innovative per coinvolgere i visitatori nelle mutazioni ambientali 
-in atto. Da questa urgenza nasce \textit{EcoSpot}, un'applicazione mobile sviluppata all'interno del 
-progetto DISCOV.ER e concepita per fungere da ponte tra la dimensione tecnologica e quella naturalistica. 
-L'obiettivo della tesi è proporre un sistema capace di trasformare la visita in un'attività dinamica e 
-consapevole, integrando dati in tempo reale provenienti da sensori IoT per rendere visibili variabili 
-ecologiche altrimenti impercettibili all'occhio umano.
+rappresentando una Riserva di Biosfera MAB UNESCO di inestimabile valore naturalistico. 
+Focalizzando l'attenzione in particolare sul versante emiliano-romagnolo, il Parco offre un 
+mosaico paesaggistico unico che spazia dalle vaste zone umide delle Valli di Comacchio e dalle antiche 
+Saline di Cervia, fino alle fitte foreste del Bosco della Mesola e alle storiche pinete costiere. 
+Questa straordinaria varietà di habitat lagunari, fluviali e boschivi lo rende una meta d'eccellenza per il turismo sostenibile e un rifugio 
+vitale per innumerevoli specie animali. L'avifauna rappresenta senza dubbio una delle ricchezze più celebri del territorio, che ospita eleganti 
+colonie di fenicotteri rosa, oltre a specie caratteristiche e protette come l'avocetta, il cavaliere d'Italia, 
+il cormorano e il falco di palude.
 
-Il cuore dell'applicativo risiede nella sinergia tra la raccolta partecipata dei dati e il coinvolgimento 
-ludico dell'utente. Attraverso il contributo attivo dei cittadini nella generazione di segnalazioni 
-georeferenziate, il visitatore cessa di essere uno spettatore passivo per diventare un custode della 
-biodiversità. Parallelamente, l'adozione di meccaniche di gratificazione e sfide interattive incentiva 
-l'esplorazione rispettosa del territorio, premiando l'acquisizione di competenze naturalistiche e 
-rafforzando il legame con la comunità di tutela del Delta. EcoSpot non si limita dunque alla funzione 
-di guida turistica, ma si configura come una piattaforma educativa avanzata che sfrutta il paradigma 
-del \textit{Digital Twin} per connettere la realtà fisica del Parco alla sua rappresentazione digitale.
+Tuttavia, la fragilità di questo ecosistema e la sopravvivenza dei volatili sono oggi messe a dura prova dai mutamenti climatici e dalle alterazioni idrogeologiche. 
+Tra i fenomeni più critici e insidiosi spicca l'intrusione del cuneo salino, ovvero la progressiva risalita delle acque marine all'interno degli alvei fluviali del delta e 
+nelle falde acquifere sotterranee. Tale dinamica, innescata e aggravata dai prolungati periodi di siccità, dalla drastica riduzione della portata d'acqua dolce dei fiumi 
+e dal fenomeno della subsidenza, altera profondamente il delicato equilibrio tra acqua dolce e salmastra. Questo sbilanciamento degrada rapidamente le aree di 
+nidificazione e di foraggiamento, minacciando direttamente la fauna e la flora, oltre a rischiare di compromettere irrimediabilmente le attività agricole del territorio limitrofo.
 
-Il presente lavoro documenta l'intero processo di realizzazione, seguendo un percorso logico che 
-parte dall'analisi del contesto per giungere alla soluzione ingegneristica finale.
+In questo scenario di vulnerabilità, dove la tutela della biodiversità aviaria diventa un'emergenza prioritaria, l'osservazione passiva 
+non è più sufficiente; si rende necessario un monitoraggio scientifico costante e capillare. In questa cornice si inserisce il progetto DISCOV.ER, 
+un'iniziativa avanzata di ricerca e innovazione tecnologica mirata alla creazione di un Digital Twin dell'ecosistema del Delta emiliano-romagnolo. 
+Il progetto si avvale di una vasta rete di sensori \ac{IoT} immersi direttamente nei corpi idrici e dislocati in punti strategici. Questi dispositivi sono programmati per rilevare e 
+trasmettere in tempo reale dati ambientali, tra cui i livelli di salinità dell'acqua e le variazioni di temperatura.
 
-L'analisi si apre con il primo capitolo, inquadrando lo scenario territoriale e scientifico di 
-riferimento. Attraverso l'esame delle
-peculiarità idrogeologiche e faunistiche dell'area, con particolare attenzione all'avifauna e alle 
-problematiche idriche, si osserva l'evoluzione dell'offerta verso modelli di fruizione intelligente 
-del patrimonio. In questo quadro vengono approfonditi i paradigmi abilitanti quali il monitoraggio 
-collaborativo e l'uso di elementi motivazionali per incentivare comportamenti virtuosi. Tale studio 
-preliminare si conclude posizionando l'app come una soluzione 
-ibrida tra supporto informativo e risorsa scientifica.
+La disponibilità di questa mole di dati tecnico-scientifici richiede però strumenti adeguati per poter essere compresa, interiorizzata e 
+valorizzata anche dal grande pubblico. Il problema del cuneo salino, infatti, è una minaccia spesso "invisibile" agli occhi di un 
+turista durante una normale escursione, ma i suoi effetti sulla fauna sono devastanti. Da questa urgenza nasce \textit{EcoSpot}, 
+un'applicazione mobile sviluppata all'interno del progetto DISCOV.ER e concepita per fungere da ponte tra la complessa dimensione 
+tecnologica di monitoraggio e l'esperienza naturalistica del visitatore. L'app offre soluzioni innovative proprio perché traduce le 
+metriche invisibili dei sensori \ac{IoT} sulla mappa in modo chiaro e di immediata comprensione. 
+Rendendo tangibile l'impatto dei cambiamenti ambientali sugli habitat e sulle specie che li popolano, 
+l'applicazione informa l'utente e lo rende pienamente consapevole dell'ecosistema che sta attraversando.
 
-Sulla base di queste premesse, si sviluppa il secondo capitolo sulla fase di progettazione e sull'analisi 
-dei requisiti. In questa sezione vengono motivate le scelte architetturali che hanno portato all'adozione 
-del framework Flutter per lo sviluppo multipiattaforma, garantendo un'esperienza fluida su 
-diversi sistemi operativi. Parallelamente, viene descritta l'infrastruttura di backend affidata 
-alla suite Google Firebase, selezionata per la sua capacità di gestire autenticazione e 
-dati in tempo reale in modo scalabile.
+Il vero cuore di EcoSpot, tuttavia, risiede nell'obiettivo finale di questa consapevolezza: la salvaguardia attiva della fauna. 
+L'applicazione integra meccaniche di gamification e sfide interattive studiate per incentivare un'esplorazione responsabile e rispettosa del territorio.
 
-Infine, nell'ultimo capitolo l'esposizione illustra nel dettaglio l'implementazione tecnica, 
-approfondendo l'architettura 
-reattiva gestita tramite Riverpod, essenziale per assicurare una gestione dello stato robusta. 
-Vengono inoltre esposte le logiche spaziali impiegate per la cartografia interattiva e l'integrazione 
-dei flussi IoT, mostrando come il codice traduca i presupposti teorici in funzionalità concrete. Lo 
-studio si conclude con una valutazione critica dei risultati e una riflessione sugli sviluppi futuri, 
-delineando come l'intelligenza artificiale e la realtà aumentata potrebbero ulteriormente potenziare 
-l'impatto di EcoSpot sulla salvaguardia del territorio.
+Premiando l'acquisizione di nuove competenze naturalistiche e di birdwatching, il visitatore viene trasformato da spettatore passivo a custode informato della biodiversità. 
+EcoSpot non si limita dunque alla funzione di guida turistica, ma si configura come una piattaforma educativa avanzata che sfrutta l'infrastruttura di DISCOV.ER 
+per connettere in modo bidirezionale la realtà fisica del Parco alla sua rappresentazione digitale.
+
+Il presente lavoro documenta l'intero processo di realizzazione dell'applicazione, seguendo un percorso logico che parte dall'analisi del contesto 
+per giungere alla soluzione ingegneristica finale.
+L'analisi si apre con il primo capitolo, inquadrando in maniera dettagliata lo scenario territoriale di riferimento. 
+Attraverso l'esame delle peculiarità idrogeologiche e faunistiche dell'area, con un focus centrale sulla tutela dell'avifauna, si osserva l'evoluzione 
+dell'offerta turistica verso modelli di fruizione intelligente del patrimonio. 
+In questo quadro vengono approfonditi i paradigmi abilitanti quali il monitoraggio collaborativo e l'uso di elementi motivazionali per 
+incentivare comportamenti responsabili. Tale studio preliminare si conclude posizionando l'app come uno strumento innovativo per 
+la divulgazione e il coinvolgimento attivo del visitatore.
+
+Sulla base di queste premesse, si sviluppa il secondo capitolo, che si apre con l'analisi dei requisiti funzionali e non funzionali, 
+per poi passare alla vera e propria fase di progettazione. 
+A fronte delle necessità emerse, vengono motivate le scelte architetturali adottate: da un lato l'utilizzo del framework Flutter per uno 
+sviluppo multipiattaforma capace di garantire un'esperienza fluida su vari sistemi operativi; dall'altro la scelta della suite Google Firebase 
+come infrastruttura di backend, ideale per gestire autenticazione e dati in tempo reale con un'elevata scalabilità.
+
+Infine, nell'ultimo capitolo la tesi illustra nel dettaglio l'implementazione tecnica dell'applicativo, approfondendo 
+l'architettura reattiva gestita tramite Riverpod, essenziale per assicurare una gestione dello stato dell'interfaccia solida e manutenibile. 
+Vengono inoltre esposte le logiche impiegate per la mappa interattiva e l'integrazione a livello di codice dei flussi di dati provenienti dai sensori IoT, 
+mostrando in che modo siano stati tradotti in funzionalità concrete. 
+
+Lo studio si conclude con le considerazioni finali sul lavoro svolto e una riflessione sugli sviluppi futuri, 
+ipotizzando come l'integrazione di tecnologie quali l'intelligenza artificiale e la realtà aumentata possa ulteriormente potenziare 
+l'impatto di EcoSpot sulla salvaguardia del patrimonio ornitologico.
