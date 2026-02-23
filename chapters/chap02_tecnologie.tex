@@ -60,7 +60,7 @@ I requisiti funzionali descrivono le interazioni specifiche tra l'utente e il si
 
     \item \textbf{Segnalazione} \label{req:segnalazioni}
     Gli utenti autenticati devono poter inviare segnalazioni georeferenziate. Ogni record deve comprendere una descrizione 
-    testuale, la posizione GPS esatta (\texttt{GeoPoint}) e il timestamp di creazione. Le prove fotografiche devono essere 
+    testuale, la posizione GPS esatta (\textit{GeoPoint}) e il timestamp di creazione. Le prove fotografiche devono essere 
     caricate su uno storage remoto (\textit{Cloud Storage}).
 
     \item \textbf{Progressione} \label{req:integrita}
@@ -209,7 +209,7 @@ La progettazione dell'interfaccia utente (UI) di EcoSpot risponde a precise esig
 
 \subsection{Palette cromatica}
 La palette cromatica di EcoSpot crea un legame visivo diretto con l'ambiente del Delta del Po. Il colore primario, 
-una tonalità di verde desaturato, \textbf{si ispira} all'identità visiva del progetto \textit{DISCOV.ER} (Digital Twin and Citizen Science for the Sustainability of Areas of Natural and Tourist Interest)
+una tonalità di verde desaturato, si ispira all'identità visiva del progetto \textit{DISCOV.ER} (Digital Twin and Citizen Science for the Sustainability of Areas of Natural and Tourist Interest)
 \cite{discover_project} e richiama la vegetazione alofila tipica delle aree lagunari, trasmettendo un senso di continuità 
 tra l'interfaccia digitale e l'ecosistema circostante.
 
@@ -300,7 +300,9 @@ La traduzione dei requisiti informativi in una struttura dati coerente si basa s
 atte a gestire la complessità delle interazioni spaziali. Il sistema adotta un paradigma NoSQL orientato ai documenti 
 tramite \textit{Google Cloud Firestore}, ottimizzando le performance di lettura e la sincronizzazione in tempo reale.
 
-\subsection{Architettura del Database: Cloud Firestore} Al fine di soddisfare i requisiti di scalabilità e sincronizzazione in tempo reale, il sistema si avvale di un database NoSQL organizzato in \textbf{Collezioni} di \textbf{Documenti} JSON-like. Questa scelta architetturale offre vantaggi strategici significativi: la struttura gerarchica consente infatti di incapsulare dati complessi, quali la lista delle specie sbloccate, direttamente all'interno del documento utente, ottimizzando così la reattività dell'applicazione. Tale efficienza è ulteriormente potenziata dall'impiego di listener nativi, che permettono la propagazione istantanea all'interfaccia di qualsiasi modifica critica, come l'avanzamento di livello, eliminando la necessità di aggiornamenti manuali. Un aspetto fondamentale per il contesto operativo è infine il supporto al funzionamento offline (Requisito \ref{req:offline}): grazie al mantenimento automatico di una cache locale, il database garantisce la piena consultabilità dei dati anche nelle aree del Parco del Delta del Po caratterizzate da assenza di copertura di rete.
+\subsection{Architettura del Database: Cloud Firestore} Al fine di soddisfare i requisiti di scalabilità e sincronizzazione in tempo reale, 
+il sistema si avvale di un database NoSQL organizzato in Collezioni di Documenti JSON-like. 
+Questa scelta architetturale offre vantaggi strategici significativi: la struttura gerarchica consente infatti di incapsulare dati complessi, quali la lista delle specie sbloccate, direttamente all'interno del documento utente, ottimizzando così la reattività dell'applicazione. Tale efficienza è ulteriormente potenziata dall'impiego di listener nativi, che permettono la propagazione istantanea all'interfaccia di qualsiasi modifica critica, come l'avanzamento di livello, eliminando la necessità di aggiornamenti manuali. Un aspetto fondamentale per il contesto operativo è infine il supporto al funzionamento offline (Requisito \ref{req:offline}): grazie al mantenimento automatico di una cache locale, il database garantisce la piena consultabilità dei dati anche nelle aree del Parco del Delta del Po caratterizzate da assenza di copertura di rete.
 
 \subsection{Entità del Dominio}
 La modellazione del database riflette le classi definite nel dominio applicativo, strutturate per supportare le funzionalità di gamification e monitoraggio:
