@@ -3,24 +3,32 @@
 \markboth{Conclusioni}{Conclusioni}
 
 Il presente lavoro di tesi ha portato alla progettazione e allo sviluppo di \textit{EcoSpot}, un’applicazione mobile cross-platform realizzata in Flutter che si propone come uno 
-strumento innovativo per la valorizzazione del Parco del Delta del Po. L'obiettivo primario è stato raggiunto integrando tecnologie eterogenee dalla cartografia digitale ai 
-sensori IoT, fino ai servizi Cloud in un'unica interfaccia accessibile, capace di promuovere attivamente il turismo sostenibile e la consapevolezza ecologica.
+strumento innovativo per la valorizzazione del Parco del Delta del Po. L'obiettivo primario, ovvero, di promuovere attivamente il turismo sostenibile e la consapevolezza ecologica 
+è stato raggiunto integrando tecnologie eterogenee dalla mappa ai sensori IoT, fino ai servizi Cloud in un'unica interfaccia intuitiva ed accessibile.
 
-L'analisi dei risultati dimostra come l'adozione di un'architettura a microservizi, basata su Riverpod per la gestione dello stato e su Firebase come backend, abbia garantito la 
-scalabilità e la robustezza necessarie per gestire flussi di dati in tempo reale. In particolare, l'implementazione del paradigma del \textit{Digital Twin}, che unisce i dati 
-ambientali (come livelli idrometrici e salinità) all'esperienza utente, ha permesso di rendere visibili le dinamiche spesso impercettibili dell'ecosistema lagunare. 
-Questo approccio ha trasformato il visitatore da semplice osservatore a soggetto attivo nel monitoraggio del territorio tramite la \textit{Citizen Science} \cite{2025discover}.
+In sintesi, l'analisi dell'applicativo sviluppato dimostra il pieno raggiungimento degli obiettivi prefissati in fase di progettazione, 
+i quali possono essere riassunti in quattro macrocategorie fondamentali. In primo luogo, i requisiti di architettura e gestione dati sono stati rispettati implementando 
+un'infrastruttura Cloud robusta, in grado di gestire in sicurezza l'autenticazione degli utenti, la persistenza delle scoperte e lo storage dei contenuti multimediali.
+In secondo luogo, per quanto concerne l'integrazione di servizi esterni e IoT, l'applicazione comunica efficacemente con i servizi di geolocalizzazione, con le API meteorologiche 
+e con la rete di sensori ambientali distribuiti sul territorio, garantendo una visualizzazione affidabile e in tempo reale.
+Sotto il profilo dell'interfaccia e usabilità, l'adozione di una mappa interattiva dinamica e di schede informative modulari ha permesso di offrire un'esperienza fluida, 
+intuitiva e accessibile. Infine, i requisiti di coinvolgimento e cittadinanza attiva sono stati ampiamente soddisfatti attraverso l'introduzione di meccanismi di gamification 
+basati su punti esperienza e livelli, uniti alla possibilità di inviare segnalazioni georeferenziate. 
+L'obiettivo finale di queste scelte è proprio quello di coinvolgere il turista, facendolo sentire parte integrante del territorio, 
+in modo da incentivare un comportamento responsabile verso il parco e aiutare concretamente la sua salvaguardia. Così facendo, viene 
+pienamente soddisfatto il paradigma della Citizen Science, trasformando l'utente in una vera e propria risorsa attiva per il monitoraggio e la tutela dell'ecosistema.
 
-Dal punto di vista della \textit{User Experience}, l'integrazione di un sistema di \textit{Gamification} fondato sulla \textit{Self-Determination Theory} \cite{ryan_deci_sdt} ha 
-gettato le basi per un coinvolgimento profondo, incentivando l'esplorazione fisica dei luoghi tramite meccaniche di scoperta \textit{location-based}. Tuttavia, EcoSpot è un progetto 
-in continua evoluzione; l'architettura modulare adottata permette di delineare diverse direttrici per sviluppi futuri volti ad arricchire ulteriormente l'esperienza immersiva nel Parco.
+Se da un lato l'integrazione di queste meccaniche di scoperta \textit{location-based} fondate sui principi della \textit{Self-Determination Theory} 
+ha gettato solide basi per un coinvolgimento profondo del visitatore, dall'altro EcoSpot si configura come un punto di partenza. 
+L'architettura modulare adottata nel progetto offre, infatti, varie opportunità per sviluppi futuri volti ad arricchire ulteriormente 
+l'esperienza immersiva all'interno del Parco.
 
 \section*{Sviluppi Futuri}
 
 In ottica evolutiva, le funzionalità attuali possono essere estese introducendo nuove dinamiche di partecipazione per massimizzare la fidelizzazione dell'utente e l'impatto educativo 
 del sistema. Mentre il prototipo attuale gratifica la scoperta singola con l'avanzamento di rango, un'evoluzione naturale prevede l'introduzione di missioni giornaliere e stagionali. 
 Queste sfide, come la richiesta di documentare specifiche specie in un arco temporale definito o visitare determinate aree verdi, potrebbero essere accompagnate da un meccanismo di 
-medaglie di completamento. L'obiettivo è premiare il collezionismo integrale della biodiversità censita, trasformando la visita in una sfida coinvolgente per completare il proprio 
+medaglie di completamento. L'obiettivo è quello di incentivare la scoperta dell'intera biodiversità mappata, trasformando la visita in una sfida coinvolgente per completare il proprio 
 archivio digitale e favorendo un coinvolgimento costante nel lungo periodo.
 
 Per migliorare la fruibilità del territorio, si prevede inoltre l'integrazione di un sistema di \textit{routing} intelligente. A differenza della libera esplorazione, l'app potrebbe 
@@ -32,7 +40,7 @@ Parallelamente, per potenziare il lato \textit{Citizen Science} e ridurre le bar
 direttamente sul dispositivo tramite TensorFlow Lite. Questa funzionalità consentirebbe il riconoscimento assistito della fauna inquadrata dalla fotocamera, validando istantaneamente 
 le segnalazioni e migliorando la qualità dei dati raccolti.
 
-Infine, l'esperienza potrebbe espandersi verso il socialecon l'implementazione di classifiche globali o tra amici e la 
+Infine, l'esperienza potrebbe espandersi verso il sociale con l'implementazione di classifiche globali o tra amici e la 
 condivisione delle proprie collezioni sui social network agirebbero da metodo promozionale per il Parco. Il culmine di questa evoluzione tecnologica sarebbe l'integrazione della Realtà 
-Aumentata: inquadrando il paesaggio, l'utente vedrebbe sovrapposti i dati invisibili dei sensori IoT o sagome virtuali della fauna locale, consolidando definitivamente il legame tra 
+Aumentata: inquadrando il paesaggio, l'utente vedrebbe sovrapposti i dati invisibili dei sensori IoT o le sagome virtuali della fauna locale, consolidando definitivamente il legame tra 
 l'ambiente fisico e il suo gemello digitale.
