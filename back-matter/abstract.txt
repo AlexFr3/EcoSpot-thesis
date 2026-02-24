@@ -1,16 +1,8 @@
-Il presente lavoro di tesi descrive la progettazione e lo sviluppo di "EcoSpot", un'applicazione mobile realizzata tramite il framework Flutter con 
-l'obiettivo di valorizzare e promuovere la conoscenza dell'ecosistema del Delta del Po. 
-In un contesto in cui la tutela ambientale e la sensibilizzazione pubblica assumono un ruolo sempre più centrale, l'applicazione si propone di avvicinare 
-cittadini e turisti al patrimonio naturalistico locale attraverso un'esperienza interattiva e coinvolgente. 
+La tesi descrive la progettazione e lo sviluppo di "EcoSpot", un'applicazione mobile realizzata tramite il framework Flutter con l'obiettivo di valorizzare e promuovere la conoscenza dell'ecosistema del Delta del Po. 
+La tutela ambientale e la sensibilizzazione pubblica, negli ultimi anni, assumono un ruolo sempre più centrale, infatti, l'applicazione si propone di avvicinare cittadini e turisti al patrimonio naturalistico locale attraverso un'esperienza interattiva e coinvolgente. 
 
-Il sistema funge da piattaforma per la salvaguardia della fauna e del suo territorio, integrando in tempo reale i dati ambientali 
-(come temperatura, velocità del vento, profondità e conducibilità dell'acqua) provenienti da una rete di sensori IoT distribuiti sul Delta, 
-insieme ad aggiornamenti meteorologici live.
+Il sistema svolge la funzione di piattaforma per la salvaguardia della fauna e del suo territorio, integrando in tempo reale i dati ambientali (come temperatura, velocità del vento, profondità e conducibilità dell'acqua) provenienti da sensori IoT distribuiti sul Delta, insieme a previsioni meteorologiche live.
 
-L'architettura del sistema si basa su una mappa digitale interattiva che permette all'utente di esplorare la fauna e 
-le aree verdi locali. Sfruttando la geolocalizzazione, l'app introduce moderne meccaniche di gamification: gli utenti accumulano 
-punti esperienza (XP) e salgono di grado (da Esploratore a Leggenda del Delta) "scoprendo" fisicamente le diverse specie nel loro 
-habitat naturale. Infine, la piattaforma promuove la partecipazione attiva (citizen science) offrendo agli utenti autenticati la 
-possibilità di inviare segnalazioni geolocalizzate, corredate di documentazione fotografica, tramite i servizi Cloud di Firebase. 
-Il risultato è uno strumento scalabile che non solo incentiva l'esplorazione consapevole, ma fornisce anche un 
-sistema di monitoraggio partecipativo per la salvaguardia del patrimonio naturale.
+L'architettura del sistema si basa su una mappa digitale interattiva che permette all'utente di esplorare la fauna e le aree verdi locali. Sfruttando la geolocalizzazione, l'app introduce moderne meccaniche di gamification: gli utenti accumulano punti esperienza e salgono di livello "scoprendo" fisicamente le varie specie nel loro habitat naturale. Infine, la piattaforma promuove la partecipazione attiva offrendo agli utenti autenticati la possibilità di inviare segnalazioni geolocalizzate, allegate di documentazione fotografica, tramite i servizi Cloud di Firebase. 
+L'architettura scalabile così ottenuta trasforma l'esplorazione consapevole in un vero e proprio sistema di monitoraggio partecipativo per la salvaguardia del patrimonio naturale.
+
